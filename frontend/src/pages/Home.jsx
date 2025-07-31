@@ -1,6 +1,17 @@
+import VideoTile from "../components/VideoTile"
+
+
 function Home() {
+
+
   return (
-    <h1>Home</h1>
+    <div className="video-grid">
+      <VideoTile />
+      <VideoTile />
+      <VideoTile />
+      <VideoTile />
+      <VideoTile />
+    </div>
   )
 }
 
