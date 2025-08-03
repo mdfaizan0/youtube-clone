@@ -1,5 +1,6 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import "../utils/style.css"
 
 function Login() {
     const [email, setEmail] = useState("")
@@ -32,18 +33,22 @@ function Login() {
     }
 
     return (
-        <div className="login-wrapper">
-            <form onSubmit={handleLogin}>
-                <div className="login-email">
-                    <label htmlFor="email">Email: </label>
-                    <input type="email" id="email" onChange={(e) => setEmail(e.target.value)} required />
+        <div className="login-container">
+            <h1 className="login-title">Welcome Back</h1>
+            <form onSubmit={handleLogin} className="login-form">
+                <div className="input-group">
+                    <input type="email" id="email" required onChange={(e) => setEmail(e.target.value)} />
+                    <label htmlFor="email">Email</label>
                 </div>
-                <div className="login-password">
-                    <label htmlFor="password">Password: </label>
-                    <input type="password" id="password" onChange={(e) => setPassword(e.target.value)} required />
+                <div className="input-group">
+                    <input type="password" id="password" required onChange={(e) => setPassword(e.target.value)} />
+                    <label htmlFor="password">Password</label>
                 </div>
-                <button type="submit">Submit</button>
+                <button type="submit" className="login-button">Log In</button>
             </form>
+            <div className="signup-login">
+                <span>Don't have an account? <Link to="/signup">Create your account</Link></span>
+            </div>
         </div>
     )
 }

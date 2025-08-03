@@ -44,7 +44,7 @@ function VideoTile() {
                     <h2 className="video-title">{video.title}</h2>
                     <div className="video-channel-details">
                         <p className="video-channel-name" title={video.channelName}>{video.channelName}</p>
-                        <img src="https://img.icons8.com/?size=100&id=36872&format=png&color=FFFFFF" alt="verified-status" title="Verified" style={video.verified ? { display: "block" } : { display: "none" }} />
+                        <img src="https://img.icons8.com/?size=100&id=36872&format=png&color=FFFFFF" alt="verified-status" title="Verified" style={video.verified ? { display: "block" } : { display: "none" }} loading="lazy"/>
                     </div>
                     <div className="video-meta">
                         <span>{formattedViews}</span>

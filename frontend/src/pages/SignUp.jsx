@@ -1,5 +1,6 @@
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import "../utils/style.css"
 
 function SignUp() {
     const [name, setName] = useState("")
@@ -31,56 +32,35 @@ function SignUp() {
             console.error("Error while registering user", error)
         }
     }
-
     return (
-        <div className="signup-page">
-            <h1>Sign Up</h1>
-            <form onSubmit={handleSignUp}>
-                <div className="signup-name">
-                    <label htmlFor="name">Name: </label>
-                    <input
-                        type="text"
-                        id="name"
-                        onChange={(e) => setName(e.target.value)}
-                    />
+        <div className="signup-container">
+            <h1 className="signup-title">Create your account</h1>
+            <form onSubmit={handleSignUp} className="signup-form">
+                <div className="input-group">
+                    <input type="text" id="name" required onChange={(e) => setName(e.target.value)} />
+                    <label htmlFor="name">Full Name</label>
                 </div>
-                <div className="signup-username">
-                    <label htmlFor="username">Username: </label>
-                    <input
-                        type="text"
-                        id="username"
-                        onChange={(e) => setUsername(e.target.value)}
-                    />
+                <div className="input-group">
+                    <input type="text" id="username" required onChange={(e) => setUsername(e.target.value)} />
+                    <label htmlFor="username">Username</label>
                 </div>
-                <div className="signup-email">
-                    <label htmlFor="email">Email: </label>
-                    <input
-                        type="email"
-                        id="email"
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
+                <div className="input-group">
+                    <input type="email" id="email" required onChange={(e) => setEmail(e.target.value)} />
+                    <label htmlFor="email">Email</label>
                 </div>
-                <div className="signup-password">
-                    <label htmlFor="password">Password: </label>
-                    <input
-                        type="password"
-                        id="password"
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
+                <div className="input-group">
+                    <input type="password" id="password" required onChange={(e) => setPassword(e.target.value)} />
+                    <label htmlFor="password">Password</label>
                 </div>
-                <div className="signup-consent">
-                    <input
-                        type="checkbox"
-                        id="consent"
-                        onChange={(e) => setConsent(e.target.checked)}
-                        required
-                    />
-                    <label
-                        htmlFor="consent"
-                    >License Agreement</label>
+                <div className="consent-group">
+                    <input type="checkbox" id="consent" required onChange={(e) => setConsent(e.target.checked)} />
+                    <label htmlFor="consent">I agree to the terms & conditions</label>
                 </div>
-                <button type="submit">Submit</button>
+                <button type="submit" className="signup-button">Sign Up</button>
             </form>
+            <div className="signup-login">
+                <span>Already have an account? <Link to="/login">Login</Link></span>
+            </div>
         </div>
     )
 }
