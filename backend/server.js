@@ -3,6 +3,7 @@ import dotenv from "dotenv"
 import connectDB from "./config/db.js"
 import cors from "cors"
 import userRouter from "./routes/user.routes.js"
+import videoRouter from "./routes/video.route.js"
 
 dotenv.config()
 connectDB()
@@ -13,6 +14,7 @@ app.use(cors())
 app.use(express.json())
 
 app.use("/api/auth", userRouter)
+app.use("/api/video", videoRouter)
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

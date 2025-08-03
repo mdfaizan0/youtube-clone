@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs"
 
 dotenv.config()
 
-export async function registerUser(req, res) {
+export async function signUpUser(req, res) {
     const { name, username, email, password, avatar, consent } = req.body
 
     if (!name || !username || !email || !password) {
@@ -17,7 +17,7 @@ export async function registerUser(req, res) {
         if (userExists) return res.status(409).json({ message: "User already exists, please login instead" })
 
         const hashedPassword = await bcrypt.hash(password, 12)
-        const user = await User.create({ name, username, email, password: hashedPassword, avatar: avatar || "https://img.icons8.com/?size=100&id=14736&format=png&color=FFFFFF", consent })
+        const user = await User.create({ name, username, email, password: hashedPassword, avatar: avatar || "https://img.icons8.com/?size=100&id=7819&format=png&color=FFFFFF", consent })
 
         return res.status(201).json({
             message: `User ${user.name} registered successfully`,
@@ -34,7 +34,7 @@ export async function registerUser(req, res) {
     }
 }
 
-export async function loginUser(req, res) {
+export async function signInUser(req, res) {
     const { email, password } = req.body
 
     if (!email || !password) {
@@ -55,10 +55,6 @@ export async function loginUser(req, res) {
         const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "1d" })
         return res.status(200).json({ message: "User authorized", token, isMatch, user: userObj })
     } catch (error) {
-        return res.status(500).json({ message: "Server error while logging in", error: error.message })
+        return res.status(500).json({ message: "Server error while signing in", error: error.message })
     }
 }
-
-
-
-// const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "1d" })

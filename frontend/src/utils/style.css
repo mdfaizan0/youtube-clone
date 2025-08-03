@@ -6,7 +6,6 @@
     box-sizing: border-box;
     font-family: "Roboto", sans-serif;
     animation: fadeIn 0.2s ease-out;
-    user-select: none;
     color: white;
 }
 
@@ -755,6 +754,7 @@ body {
 .channel-name p {
     font-weight: 600;
     font-size: 0.95rem;
+    cursor: pointer;
 }
 
 .channel-meta {
@@ -1113,6 +1113,7 @@ body {
     gap: 8px;
     position: fixed;
     top: 56px;
+    transition: margin-left 0.3s ease;
 }
 
 .category-bar span {

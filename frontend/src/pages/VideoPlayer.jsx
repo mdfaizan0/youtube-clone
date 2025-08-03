@@ -1,7 +1,7 @@
 import { useContext, useState } from "react"
 import "../utils/style.css"
 import { GuideContext } from "../utils/GuideContext"
-import Comments from "../components/Comments"
+import Comment from "../components/Comment"
 import MiniVideoTile from "../components/MiniVideoTile"
 
 function VideoPlayer() {
@@ -87,10 +87,10 @@ function VideoPlayer() {
                                 </div>
                             </div>
                         </div>
-                        <Comments />
-                        <Comments />
-                        <Comments />
-                        <Comments />
+                        <Comment />
+                        <Comment />
+                        <Comment />
+                        <Comment />
                     </div>
                 </div>
             </div>

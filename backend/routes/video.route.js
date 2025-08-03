@@ -1,0 +1,13 @@
+import { Router } from "express";
+import { allVideos, channelVideos, oneVideo, searchVideo, uploadVideo } from "../controllers/video.controller.js";
+import { protect } from "../middleware/auth.middleware.js";
+
+const videoRouter = Router()
+
+videoRouter.post("/upload", protect, uploadVideo)
+videoRouter.get("/all", allVideos)
+videoRouter.get("/watch/:id", oneVideo)
+videoRouter.get("/user/:userId", channelVideos)
+videoRouter.get("/search", searchVideo)
+
+export default videoRouter
