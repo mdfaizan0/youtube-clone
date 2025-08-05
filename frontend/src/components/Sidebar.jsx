@@ -1,6 +1,8 @@
+import { useSelector } from "react-redux"
 import { Link } from "react-router-dom"
 
 function Sidebar() {
+    const token = useSelector(state => state.user.token)
     return (
         <aside className="guide-sidebar">
             <div className="home-actions sideblock">
@@ -27,7 +29,7 @@ function Sidebar() {
                     <span>History</span>
                 </div>
             </div>
-            <div className="signin-cta-sidebar sideblock">
+            <div className="signin-cta-sidebar sideblock" style={{display: token? "none" : "flex"}}>
                 <span>Sign in to like videos, comment, and subscribe.</span>
                 <Link to="/login" className="signin-btn">
                     <img src="https://img.icons8.com/?size=100&id=23400&format=png&color=FFFFFF" alt="person" />

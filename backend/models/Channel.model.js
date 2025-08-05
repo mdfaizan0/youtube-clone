@@ -1,0 +1,33 @@
+import mongoose from "mongoose";
+
+const channelSchema = mongoose.Schema({
+    channelName: {
+        type: String,
+        required: true
+    },
+    channelAvatar: {
+        type: String,
+        default: "https://i.sstatic.net/34AD2.jpg"
+    },
+    owner: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        unique: true
+    },
+    videos: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Video"
+    }],
+    channelDescription: {
+        type: String,
+        default: ""
+    },
+    channelBanner: {
+        type: String,
+        default: "https://dummyimage.com/2560x1440/5e5e5e/ffffff.png&text=YouTube+Banner"
+    }
+}, { timestamps: true })
+
+const Channel = mongoose.model("Channel", channelSchema)
+
+export default Channel

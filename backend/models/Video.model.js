@@ -1,5 +1,21 @@
 import mongoose from "mongoose";
 
+const commentSchema = new mongoose.Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+    },
+    comment: {
+        type: String,
+        required: true
+    },
+    timestamp: {
+        type: Date,
+        default: Date.now
+    }
+});
+
 const videoSchema = mongoose.Schema({
     title: {
         type: String,
@@ -33,9 +49,7 @@ const videoSchema = mongoose.Schema({
     tags: [{
         type: String
     }],
-    comments: [{
-        type: Object
-    }],
+    comments: [commentSchema],
     likes: {
         type: Number,
         default: 0
@@ -47,7 +61,7 @@ const videoSchema = mongoose.Schema({
     channel: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Channel",
-        required: false
+        required: true
     }
 }, { timestamps: true })
 

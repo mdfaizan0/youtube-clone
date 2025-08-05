@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, Navigate, useNavigate } from "react-router-dom"
 import "../utils/style.css"
+import { useSelector } from "react-redux"
 
 function SignUp() {
     const [name, setName] = useState("")
@@ -13,6 +14,11 @@ function SignUp() {
     const [passwordError, setPasswordError] = useState("");
 
     const navigate = useNavigate()
+    const token = useSelector(state => state.user.token)
+
+    if (token) {
+        return <Navigate to="/"></Navigate>
+    }
 
     function handleUploadAvatar() {
         const widget = window.cloudinary.createUploadWidget({

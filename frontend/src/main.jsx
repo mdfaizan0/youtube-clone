@@ -4,6 +4,8 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom"
 import { lazy, Suspense } from 'react'
 import { GuideProvider } from './utils/GuideContext.jsx'
 import VideoPlayer from './pages/VideoPlayer.jsx'
+import { Provider } from "react-redux"
+import appStore from './utils/appStore.js'
 
 const Home = lazy(() => import('./pages/Home.jsx'))
 const Login = lazy(() => import('./pages/Login.jsx'))
@@ -26,9 +28,11 @@ const appRouter = createBrowserRouter([
 ])
 
 createRoot(document.getElementById('root')).render(
-  <Suspense fallback={<div>Loading...</div>}>
-    <GuideProvider>
-      <RouterProvider router={appRouter} />
-    </GuideProvider>
-  </Suspense>
+  <Provider store={appStore}>
+    <Suspense fallback={<div>Loading...</div>}>
+      <GuideProvider>
+        <RouterProvider router={appRouter} />
+      </GuideProvider>
+    </Suspense>
+  </Provider>
 )

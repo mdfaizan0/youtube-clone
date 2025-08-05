@@ -58,3 +58,11 @@ export async function signInUser(req, res) {
         return res.status(500).json({ message: "Server error while signing in", error: error.message })
     }
 }
+
+export async function userProfile(req, res) {
+    try {
+        return res.status(200).json({ message: "User profile fetched", user: req.user })
+    } catch (error) {
+        return res.status(500).json({ message: "Server error while getting user profile", error: error.message })
+    }
+}

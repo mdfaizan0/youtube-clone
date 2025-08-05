@@ -26,6 +26,22 @@ const thumbnailStorage = new CloudinaryStorage({
     }
 })
 
-const uploadThumbnail = multer({ storage: thumbnailStorage })
+const channelBannerStorage = new CloudinaryStorage({
+    cloudinary,
+    params: (req, file) => {
+        return {
+            folder: "channelBanner",
+            allowed_formats: ["jpg", "jpeg", "png", "webp"],
+            public_id: `${Date.now()}-${file.originalname.split(".")[0].replace(/\s+/g, "-")}`,
+            transformation: {
+                width: 2560,
+                crop: "scale"
+            }
+        }
+    }
+})
 
-export { cloudinary, uploadThumbnail }
+const uploadThumbnail = multer({ storage: thumbnailStorage })
+const uploadChannelBanner = multer({ storage: channelBannerStorage })
+
+export { cloudinary, uploadThumbnail, uploadChannelBanner }

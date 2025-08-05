@@ -1,12 +1,44 @@
 import Search from "./Search"
-import { useContext, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import { GuideContext } from "../utils/GuideContext"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import Sidebar from "./Sidebar"
+import { useDispatch, useSelector } from "react-redux"
+import { logout, setUser } from "../utils/userSlice"
+import { getProfile } from "../utils/authUtils"
 
 function Header() {
     const { showGuide, setShowGuide } = useContext(GuideContext)
     const [showCreate, setShowCreate] = useState(false)
+    const [showProfile, setShowProfile] = useState(false)
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+    const token = useSelector(state => state.user.token)
+    const user = useSelector(state => state.user.user)
+
+    const isLoggedIn = Boolean(token)
+
+    useEffect(() => {
+        if (!token) {
+            navigate("/login");
+            return;
+        }
+        const fetchUser = async () => {
+            const result = await getProfile(token);
+            if (!result) {
+                toast.error("Something went wrong.");
+                dispatch(logout());
+                navigate("/login");
+            } else if (result.expired) {
+                toast.error("Session expired. Please login again.");
+                dispatch(logoutt());
+                navigate("/login");
+            } else {
+                dispatch(setUser(result.user));
+            }
+        };
+        if (!user) fetchUser();
+    }, [token, dispatch, navigate, user]);
 
     return (
         <div className="header-wrapper">
@@ -21,7 +53,7 @@ function Header() {
                 </div>
                 {showGuide && <Sidebar />}
                 <Search />
-                <div className="create-group" onClick={() => setShowCreate(!showCreate)}>
+                <div className="create-group" onClick={() => setShowCreate(!showCreate)} style={{display: isLoggedIn && user?.channels?.length > 0 ? "flex" : "none"}}>
                     <img src="https://img.icons8.com/?size=100&id=11153&format=png&color=FFFFFF" alt="create" />
                     <span>Create</span>
                     <div className="create-options" style={{ display: showCreate ? "block" : "none" }}>
@@ -40,10 +72,26 @@ function Header() {
                     </div>
                 </div>
                 <div className="header-sign-in">
-                    <Link to="/login" className="signin-btn">
+                    {isLoggedIn ? <img src={user?.avatar} alt="avatar" className="header-avatar" onClick={() => setShowProfile(!showProfile)} /> : <Link to="/login" className="signin-btn">
                         <img src="https://img.icons8.com/?size=100&id=23400&format=png&color=FFFFFF" alt="person" />
                         <p>Sign in</p>
-                    </Link>
+                    </Link>}
+                    <div className="user-profile" style={{ display: showProfile ? "flex" : "none" }}>
+                        <div className="profile">
+                            <img src={user?.avatar} alt="avatar" className="header-avatar" />
+                            <div className="user-details">
+                                <span>{user?.name}</span>
+                                <span>{user?.username}</span>
+                                <span><Link to="/login">{user?.channels?.length === 0 ? "Create a new channel" : "View your channel"}</Link></span>
+                            </div>
+                        </div>
+                        <button
+                            className="logout-btn"
+                            onClick={() => {
+                                dispatch(logout());
+                                setShowProfile(!showProfile)
+                            }}>Logout</button>
+                    </div>
                 </div>
             </div>
         </div>
