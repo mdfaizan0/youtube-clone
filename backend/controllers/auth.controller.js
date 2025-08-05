@@ -7,7 +7,6 @@ dotenv.config()
 
 export async function signUpUser(req, res) {
     const { name, username, email, password, avatar, consent } = req.body
-
     if (!name || !username || !email || !password) {
         return res.status(400).json({ message: "Please enter the required fields." })
     }
@@ -26,7 +25,8 @@ export async function signUpUser(req, res) {
                 name: user.name,
                 username: user.username,
                 email: user.email,
-                consent
+                consent,
+                avatar
             }
         })
     } catch (error) {

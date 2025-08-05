@@ -1,14 +1,27 @@
 import Video from "../models/Video.model.js"
 
 export async function uploadVideo(req, res) {
-    const { title, videoUrl, thumbnailUrl, duration, description, tags } = req.body
+    const { title, videoUrl, duration, description, tags } = req.body
+    const thumbnailUrl = req.file?.path;
 
-    if (!title || !videoUrl || !thumbnailUrl || !duration) {
+    if (!req.file) {
+        return res.status(400).json({ message: "Thumbnail image is required." });
+    }
+
+    if (!title || !videoUrl || !duration) {
         return res.status(400).json({ message: "Please enter the required fields." })
     }
 
     try {
-        const video = await Video.create({ title, videoUrl, thumbnailUrl, duration, description, tags, uploader: req.user._id })
+        const video = await Video.create({
+            title,
+            videoUrl,
+            thumbnailUrl,
+            description,
+            tags: typeof tags === 'string' ? tags.split(',').map(tag => tag.trim()) : tags,
+            uploader: req.user._id,
+            duration
+        })
         return res.status(201).json({ message: "Uploaded video successfully", video })
     } catch (error) {
         return res.status(500).json({ message: "Server error while uploading the video", error: error.message })

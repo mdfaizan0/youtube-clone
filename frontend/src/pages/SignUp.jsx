@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import "../utils/style.css"
 
@@ -8,13 +8,87 @@ function SignUp() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [consent, setConsent] = useState(false)
+    const [avatarUrl, setAvatarUrl] = useState("")
+    const [emailError, setEmailError] = useState("");
+    const [passwordError, setPasswordError] = useState("");
+
     const navigate = useNavigate()
+
+    function handleUploadAvatar() {
+        const widget = window.cloudinary.createUploadWidget({
+            cloudName: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME,
+            uploadPreset: import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET,
+            folder: "avatars",
+            sources: ["local", "url"],
+            cropping: true,
+            croppingAspectRatio: 1,
+            croppingDefaultSelectionRatio: 0.8,
+            croppingShowDimensions: true,
+            croppingCoordinatesMode: "custom",
+            multiple: false,
+            showSkipCropButton: false,
+            croppingShowBackButton: true,
+            clientAllowedFormats: ["jpg", "jpeg", "png", "webp"],
+            maxFileSize: 5 * 1024 * 1024,
+            resourceType: "image",
+            showCompletedButton: true,
+            showUploadMoreButton: false,
+            publicId: username ? `avatar_${username}_${Date.now()}` : `avatar_${Date.now()}`,
+            styles: {
+                palette: {
+                    window: "#1c1c1c",
+                    sourceBg: "#222222",
+                    windowBorder: "#8E9FBF",
+                    tabIcon: "#FFFFFF",
+                    inactiveTabIcon: "#8E9FBF",
+                    menuIcons: "#CCCCCC",
+                    link: "#5ACCFF",
+                    action: "#FF620C",
+                    inProgress: "#00BFFF",
+                    complete: "#20B832",
+                    error: "#F44235",
+                    textDark: "#000000",
+                    textLight: "#FFFFFF",
+                }
+            }
+        }, (error, result) => {
+            if (error) {
+                console.error("Upload error:", error);
+                return;
+            }
+            if (result.event === "success") {
+                const url = result.info.secure_url;
+                setAvatarUrl(url);
+                widget.close();
+            }
+        });
+
+        if (widget) {
+            widget.open();
+        }
+    }
 
     async function handleSignUp(e) {
         e.preventDefault()
+        setEmailError("");
+        setPasswordError("");
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
+
         if (!name || !email || !password || !username) {
             alert("Please fill all fields")
             return
+        }
+
+        if (!emailRegex.test(email)) {
+            setEmailError("Please enter a valid email address.");
+            return;
+        }
+
+        if (!passwordRegex.test(password)) {
+            setPasswordError("Password must be at least 6 characters and include uppercase, lowercase, and a number.");
+            return;
         }
 
         try {
@@ -23,7 +97,7 @@ function SignUp() {
                 headers: {
                     "Content-type": "application/json"
                 },
-                body: JSON.stringify({ name, username, email, password, consent })
+                body: JSON.stringify({ name, username, email, password, consent, avatar: avatarUrl })
             })
             const data = await res.json()
             console.log(data)
@@ -32,25 +106,38 @@ function SignUp() {
             console.error("Error while registering user", error)
         }
     }
+
     return (
         <div className="signup-container">
             <h1 className="signup-title">Create your account</h1>
             <form onSubmit={handleSignUp} className="signup-form">
+                <div className="avatar-group">
+                    <img
+                        src={avatarUrl ? avatarUrl : "https://img.icons8.com/?size=100&id=7819&format=png&color=FFFFFF"}
+                        alt="avatar preview"
+                        className="avatar-preview"
+                    />
+                    <button type="button" onClick={handleUploadAvatar}>
+                        {avatarUrl ? "Change Avatar" : "Upload Avatar"}
+                    </button>
+                </div>
                 <div className="input-group">
-                    <input type="text" id="name" required onChange={(e) => setName(e.target.value)} />
+                    <input type="text" id="name" required onChange={(e) => setName(e.target.value)} placeholder=" " />
                     <label htmlFor="name">Full Name</label>
                 </div>
                 <div className="input-group">
-                    <input type="text" id="username" required onChange={(e) => setUsername(e.target.value)} />
+                    <input type="text" id="username" required onChange={(e) => setUsername(e.target.value)} placeholder=" " />
                     <label htmlFor="username">Username</label>
                 </div>
                 <div className="input-group">
-                    <input type="email" id="email" required onChange={(e) => setEmail(e.target.value)} />
+                    <input type="email" id="email" autoComplete="off" required onChange={(e) => setEmail(e.target.value)} placeholder=" " />
                     <label htmlFor="email">Email</label>
+                    {emailError && <p className="error-text">{emailError}</p>}
                 </div>
                 <div className="input-group">
-                    <input type="password" id="password" required onChange={(e) => setPassword(e.target.value)} />
+                    <input type="password" id="password" autoComplete="off" required onChange={(e) => setPassword(e.target.value)} placeholder=" " />
                     <label htmlFor="password">Password</label>
+                    {passwordError && <p className="error-text">{passwordError}</p>}
                 </div>
                 <div className="consent-group">
                     <input type="checkbox" id="consent" required onChange={(e) => setConsent(e.target.checked)} />
