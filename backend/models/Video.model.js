@@ -33,6 +33,10 @@ const videoSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    thumbnailPublicId: {
+        type: String,
+        required: true
+    },
     uploader: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",

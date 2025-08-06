@@ -1,16 +1,21 @@
+import { cloudinary } from "../config/cloudinary.js";
 import Channel from "../models/Channel.model.js";
 import Video from "../models/Video.model.js"
 import { getVideoDurationInSeconds } from "get-video-duration"
 
+function formatTags(tags) {
+    return typeof tags === 'string' ? tags.split(',').map(tag => tag.trim()) : tags
+}
+
 export async function uploadVideo(req, res) {
-    const { title, videoUrl, duration, description, tags } = req.body
-    const thumbnailUrl = req.file?.path;
+    const { title, videoUrl, description, tags } = req.body
+    const { path: thumbnailUrl, filename: thumbnailPublicId } = req.file;
 
     if (!req.file) {
         return res.status(400).json({ message: "Thumbnail image is required." });
     }
 
-    if (!title || !videoUrl ) {
+    if (!title || !videoUrl) {
         return res.status(400).json({ message: "Please enter the required fields." })
     }
 
@@ -24,19 +29,77 @@ export async function uploadVideo(req, res) {
             title,
             videoUrl,
             thumbnailUrl,
+            thumbnailPublicId,
             description,
-            tags: typeof tags === 'string' ? tags.split(',').map(tag => tag.trim()) : tags,
+            tags: formatTags(tags),
             uploader: req.user._id,
             duration: Math.round(duration),
             channel: channel._id
         })
-        if (video) {
-            channel.videos.push(video._id)
-            await channel.save()
-        }
+        channel.videos.push(video._id)
+        await channel.save()
+        await video.populate("channel")
         return res.status(201).json({ message: "Video uploaded successfully", video })
     } catch (error) {
         return res.status(500).json({ message: "Server error while uploading the video", error: error.message })
+    }
+}
+
+export async function editVideo(req, res) {
+    const { videoId } = req.params
+    const { title, description, tags } = req.body
+    const thumbnailUrl = req.file?.path
+
+    if (!title && !description && !tags && !thumbnailUrl) {
+        return res.status(400).json({ message: "Atleast one of the fields among Title, Description, Tags or Thumbnail is required" })
+    }
+
+    const updates = {}
+    try {
+        const video = await Video.findById(videoId)
+        if (!video) {
+            return res.status(404).json({ message: "Unable to update as video not found" });
+        }
+        if (req.file) {
+            if (video.thumbnailPublicId) {
+                await cloudinary.uploader.destroy(video.thumbnailPublicId)
+            }
+            updates.thumbnailUrl = req.file.path
+            updates.thumbnailPublicId = req.file.filename
+        }
+
+        if (title) updates.title = title
+        if (description) updates.description = description
+        if (tags !== undefined) updates.tags = formatTags(tags)
+
+        const updatedVideo = await Video.findByIdAndUpdate(videoId, { $set: updates }, { new: true })
+        return res.status(200).json({ message: `${updatedVideo.title} updated successfully`, video: updatedVideo })
+    } catch (error) {
+        return res.status(500).json({ message: "Server error while updating the video details", error: error.message })
+    }
+}
+
+export async function deleteVideo(req, res) {
+    const { channelId, videoId } = req.params
+
+    try {
+        const video = await Video.findById(videoId)
+        if (!video) {
+            return res.status(404).json({ message: "Unable to delete as video not found" });
+        }
+
+        if (video.thumbnailPublicId) {
+            await cloudinary.uploader.destroy(video.thumbnailPublicId)
+        }
+        const deletedVideo = await Video.findByIdAndDelete(videoId)
+        const channel = await Channel.findById(channelId)
+        if (channel?.videos) {
+            channel.videos = channel.videos.filter(vidId => vidId.toString() !== videoId.toString())
+            await channel.save()
+        }
+        return res.status(200).json({ message: "Deleted the video successfully", video: deletedVideo })
+    } catch (error) {
+        return res.status(500).json({ message: "Server error while updating the video details", error: error.message })
     }
 }
 
@@ -85,5 +148,83 @@ export async function searchVideo(req, res) {
         return res.status(200).json({ message: "Searched videos successfully", videos })
     } catch (error) {
         return res.status(500).json({ message: "Server error while searching the videos", error: error.message })
+    }
+}
+
+export async function addComment(req, res) {
+    const { videoId } = req.params
+    const userId = req.user._id
+    const { comment } = req.body
+
+    if (!comment) {
+        return res.status(400).json({ message: "Unable to add empty comment" })
+    }
+
+    try {
+        const video = await Video.findById(videoId)
+        if (!video) {
+            return res.status(404).json({ message: "Unable to find the video" })
+        }
+        video.comments.push({ user: userId, comment })
+        await video.save()
+        await video.populate("comments.user", "username avatar")
+        return res.status(201).json({ message: "Comment added", comments: video.comments })
+    } catch (error) {
+        return res.status(500).json({ message: "Server error while adding comment", error: error.message })
+    }
+}
+
+export async function updateComment(req, res) {
+    const { videoId, commentId } = req.params
+    const userId = req.user._id
+    const { updatedComment } = req.body
+
+    if (!updatedComment) {
+        return res.status(400).json({ message: "Unable to update empty comment" })
+    }
+
+    try {
+        const video = await Video.findById(videoId)
+        if (!video) {
+            return res.status(404).json({ message: "Unable to find the video" })
+        }
+        const comment = video.comments.find(comm => comm._id.toString() === commentId?.toString())
+        if (!comment) {
+            return res.status(404).json({ message: "Unable to edit as comment not found" })
+        }
+        if (comment.user.toString() !== userId.toString()) {
+            return res.status(403).json({ message: "You are not authorized to modify this comment" });
+        }
+        comment.comment = updatedComment
+        await video.save()
+        await video.populate("comments.user", "username avatar")
+        return res.status(200).json({ message: "Comment updated", edited: true, comments: video.comments })
+    } catch (error) {
+        return res.status(500).json({ message: "Server error while updating comment", error: error.message })
+    }
+}
+
+export async function deleteComment(req, res) {
+    const { videoId, commentId } = req.params
+    const userId = req.user._id
+
+    try {
+        const video = await Video.findById(videoId)
+        if (!video) {
+            return res.status(404).json({ message: "Unable to find the video" })
+        }
+        const comment = video.comments.find(comm => comm._id.toString() === commentId?.toString())
+        if (!comment) {
+            return res.status(404).json({ message: "Unable to edit as comment not found" })
+        }
+        if (comment.user.toString() !== userId.toString()) {
+            return res.status(403).json({ message: "You are not authorized to modify this comment" });
+        }
+        video.comments = video.comments.filter(comm => comm._id.toString() !== commentId?.toString())
+        await video.save()
+        await video.populate("comments.user", "username avatar")
+        return res.status(200).json({ message: "Comment deleted successfully", comments: video.comments })
+    } catch (error) {
+        return res.status(500).json({ message: "Server error while deleting comment", error: error.message })
     }
 }

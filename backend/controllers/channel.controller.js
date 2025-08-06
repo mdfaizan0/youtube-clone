@@ -57,8 +57,9 @@ export async function getMyChannel(req, res) {
 }
 
 export async function updateChannel(req, res) {
-    const { channelName, channelAvatar, channelDescription, channelBanner } = req.body
+    const { channelName, channelAvatar, channelDescription } = req.body
     const owner = req.user._id
+    const channelBanner = req.file?.path
 
     if (!channelName && !channelAvatar && !channelDescription && !channelBanner) {
         return res.status(400).json({ message: "Atleast one of the fields among Channel Name, Channel Avatar, Channel Description or Channel Banner is required" })
