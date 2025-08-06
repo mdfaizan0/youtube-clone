@@ -112,15 +112,16 @@ export async function allVideos(req, res) {
     }
 }
 
-export async function oneVideo(req, res) {
-    const videoId = req.params.id
+export async function playVideo(req, res) {
+    const { videoId } = req.params
     try {
         const video = await Video.findById(videoId).populate("uploader", "username avatar").populate("comments.user", "username avatar")
         if (!video) {
             return res.status(404).json({ message: "Video not found" })
         }
-
-        return res.status(200).json({ message: "Fetched video successfully", video })
+        video.views += 1
+        await video.save()
+        return res.status(200).json({ message: "Fetched video successfully", video, videoViews: video.views })
     } catch (error) {
         return res.status(500).json({ message: "Server error while loading the video", error: error.message })
     }
@@ -226,5 +227,60 @@ export async function deleteComment(req, res) {
         return res.status(200).json({ message: "Comment deleted successfully", comments: video.comments })
     } catch (error) {
         return res.status(500).json({ message: "Server error while deleting comment", error: error.message })
+    }
+}
+
+export async function toggleLikeDislike(req, res) {
+    const { videoId } = req.params
+    const userId = req.user._id
+    const { action } = req.body
+
+    try {
+        const video = await Video.findById(videoId)
+
+        if (!video) {
+            return res.status(404).json({ message: "Video not found" });
+        }
+
+        // Like
+        if (action === "like") {
+            if (video.likedBy.some(id => id.equals(userId))) {
+                video.likedBy = video.likedBy.filter(id => !id.equals(userId))
+                video.likes -= 1
+            } else if (video.dislikedBy.some(id => id.equals(userId))) {
+                video.dislikedBy = video.dislikedBy.filter(id => !id.equals(userId))
+                video.likedBy.push(userId)
+                video.dislikes -= 1
+                video.likes += 1
+            } else {
+                video.likedBy.push(userId)
+                video.likes += 1
+            }
+        }
+
+        // Dislike
+        if (action === "dislike") {
+            if (video.dislikedBy.some(id => id.equals(userId))) {
+                video.dislikedBy = video.dislikedBy.filter(id => !id.equals(userId))
+                video.dislikes -= 1
+            } else if (video.likedBy.some(id => id.equals(userId))) {
+                video.likedBy = video.likedBy.filter(id => !id.equals(userId))
+                video.dislikedBy.push(userId)
+                video.likes -= 1
+                video.dislikes += 1
+            } else {
+                video.dislikedBy.push(userId)
+                video.dislikes += 1
+            }
+        }
+
+        // video.likes = Math.max(0, video.likes)
+        // video.dislikes = Math.max(0, video.dislikes)
+
+        await video.save()
+
+        return res.status(200).json({ message: `${action} action updated successfully`, likes: video.likes, dislikes: video.dislikes })
+    } catch (error) {
+        return res.status(500).json({ message: `Server error while implementing ${action} action`, error: error.message })
     }
 }

@@ -25,6 +25,9 @@ const channelSchema = mongoose.Schema({
     channelBanner: {
         type: String,
         default: "https://dummyimage.com/2560x1440/5e5e5e/ffffff.png&text=YouTube+Banner"
+    },
+    channelBannerPublicId: {
+        type: String
     }
 }, { timestamps: true })
 
