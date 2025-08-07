@@ -21,10 +21,12 @@ export async function uploadVideo(req, res) {
 
     try {
         const duration = await getVideoDurationInSeconds(videoUrl)
-        const channel = await Channel.findOne({ owner: req.user._id })
+        const channel = await Channel.findOne({ owner: req.user._id }).populate("videos", "views");
+
         if (!channel) {
             return res.status(400).json({ message: "Please create a channel first" })
         }
+
         const video = await Video.create({
             title,
             videoUrl,
@@ -36,12 +38,30 @@ export async function uploadVideo(req, res) {
             duration: Math.round(duration),
             channel: channel._id
         })
+
         channel.videos.push(video._id)
         await channel.save()
         await video.populate("channel")
-        return res.status(201).json({ message: "Video uploaded successfully", video })
+
+        const totalViews = channel.videos.reduce((acc, video) => acc + video.views, 0)
+        const subscriberCount = channel.subscriberCount;
+
+        if (subscriberCount >= 100 || totalViews >= 5000) {
+            channel.verified = true;
+            await channel.save();
+        }
+
+        return res.status(201).json({
+            message: "Video uploaded successfully",
+            video,
+            channelVerified: channel.verified
+        })
+
     } catch (error) {
-        return res.status(500).json({ message: "Server error while uploading the video", error: error.message })
+        return res.status(500).json({
+            message: "Server error while uploading the video",
+            error: error.message
+        })
     }
 }
 
@@ -105,7 +125,7 @@ export async function deleteVideo(req, res) {
 
 export async function allVideos(req, res) {
     try {
-        const videos = await Video.find().populate("uploader", "username avatar").limit(40).sort({ createdAt: -1 }).populate("comments.user", "username avatar")
+        const videos = await Video.find().populate("channel", "channelName verified channelAvatar").limit(40).sort({ createdAt: -1 }).populate("comments.user", "username avatar")
         return res.status(200).json({ message: "Fetched all videos successfully", videos })
     } catch (error) {
         return res.status(500).json({ message: "Server error while loading the videos", error: error.message })
@@ -115,7 +135,10 @@ export async function allVideos(req, res) {
 export async function playVideo(req, res) {
     const { videoId } = req.params
     try {
-        const video = await Video.findById(videoId).populate("uploader", "username avatar").populate("comments.user", "username avatar")
+        const video = await Video.findById(videoId)
+            .populate("uploader", "username avatar")
+            .populate("comments.user", "username avatar")
+            .populate("channel", "subscriberCount channelName channelAvatar verified subscribers")
         if (!video) {
             return res.status(404).json({ message: "Video not found" })
         }
@@ -197,6 +220,7 @@ export async function updateComment(req, res) {
             return res.status(403).json({ message: "You are not authorized to modify this comment" });
         }
         comment.comment = updatedComment
+        comment.edited = true
         await video.save()
         await video.populate("comments.user", "username avatar")
         return res.status(200).json({ message: "Comment updated", edited: true, comments: video.comments })
@@ -273,9 +297,6 @@ export async function toggleLikeDislike(req, res) {
                 video.dislikes += 1
             }
         }
-
-        // video.likes = Math.max(0, video.likes)
-        // video.dislikes = Math.max(0, video.dislikes)
 
         await video.save()
 

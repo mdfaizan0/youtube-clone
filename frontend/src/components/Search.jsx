@@ -2,7 +2,7 @@ import { useState } from "react";
 
 function Search() {
   const [query, setQuery] = useState("");
-
+  
   return (
     <div className="searchbar-container">
       <form className="searchbar-form" onSubmit={(e) => e.preventDefault()}>

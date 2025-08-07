@@ -119,3 +119,37 @@ export async function deleteChannel(req, res) {
         return res.status(500).json({ message: "Server error while deleting the channel", error: error.message })
     }
 }
+
+export async function toggleSubscriber(req, res) {
+    const { action } = req.body
+    const userId = req.user._id
+    const { channelId } = req.params
+
+    try {
+        const channel = await Channel.findById(channelId)
+        if (!channel) {
+            return res.status(404).json({ message: "Channel not found" })
+        }
+        if (action === "inc") {
+            if (channel.subscribers.some(id => id.equals(userId))) {
+                return res.status(400).json({ message: "Already subscribed, cannot subscribe again" })
+            }
+            channel.subscribers.push(userId)
+            channel.subscriberCount += 1
+        }
+
+        if (action === "dec") {
+            if (channel.subscribers.some(id => id.equals(userId))) {
+                channel.subscribers = channel.subscribers.filter(sub => !sub.equals(userId))
+                channel.subscriberCount -= 1
+            } else {
+                return res.status(400).json({ message: "You are not subscribed to this channel" })
+            }
+        }
+
+        await channel.save()
+        return res.status(200).json({ message: `Subscriber count updated successfully`, subscribers: channel.subscribers, subscriberCount: channel.subscriberCount })
+    } catch (error) {
+        return res.status(500).json({ message: "Server error while updating subscriber count", error: error.message })
+    }
+}

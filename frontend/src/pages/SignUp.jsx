@@ -106,8 +106,14 @@ function SignUp() {
                 body: JSON.stringify({ name, username, email, password, consent, avatar: avatarUrl })
             })
             const data = await res.json()
-            console.log(data)
-            navigate("/login")
+            if (res.status === 201) {
+                navigate("/login")
+                toast.success(`Hello ${name.split(" ")[0]}, welcome to the family`, { icon: "👋🏻" })
+                // if response status is 409, show backend given message and navigate to login
+            } else if (res.status === 409) {
+                alert(data.message)
+                navigate("/login")
+            }
         } catch (error) {
             console.error("Error while registering user", error)
         }

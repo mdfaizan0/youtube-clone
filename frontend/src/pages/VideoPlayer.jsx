@@ -1,53 +1,209 @@
-import { useContext, useState } from "react"
+import { useContext, useEffect, useState } from "react"
 import "../utils/style.css"
 import { GuideContext } from "../utils/GuideContext"
-import Comment from "../components/Comment"
 import MiniVideoTile from "../components/MiniVideoTile"
+import { Link, useParams } from "react-router-dom"
+import { ALL_VIDEOS, COMMENT, PLAY_VIDEO, REACT_VIDEO, SUB_CHANNEL } from "../utils/API_CONFIG"
+import Comment from "../components/Comment"
+import { formatDistanceToNow } from "date-fns"
+import { formatViews } from "../utils/videoUtils"
+import { useSelector } from "react-redux"
 
 function VideoPlayer() {
-    const { showGuide } = useContext(GuideContext)
     const [showSignin, setShowSignin] = useState(false)
-    const video = {
-        avatar: "https://yt3.ggpht.com/6tLBV-DRVemxhmanuezR5HkHshX2g7Y46Rq8cysyO1V-nd2SaQ2Fi8cdgVM-n6v_8XZ5BEimxXI=s68-c-k-c0x00ffffff-no-rj",
-        title: "Logic building | Register controller",
-        thumbnail: "https://img.youtube.com/vi/VKXnSwNm_lE/maxresdefault.jpg",
-        channelName: "Chai aur Code",
-        views: 1234,
-        verified: true
+    const [showActionSignin, setShowActionSignin] = useState(false)
+    const [showReactionSignin, setShowReactionSignin] = useState(false)
+    const [toggleSub, setToggleSub] = useState(false)
+    const [video, setVideo] = useState(null)
+    const [comment, setComment] = useState("")
+    const [showCommentBtn, setShowCommentBtn] = useState(false)
+    const [recommendations, setRecommendations] = useState(null)
+    const { videoId } = useParams()
+    const { showGuide } = useContext(GuideContext)
+    const token = useSelector(state => state.user.token)
+    const user = useSelector(state => state.user.user)
+    useEffect(() => {
+        async function fetchVideo() {
+            try {
+                const res = await fetch(`${PLAY_VIDEO}/${videoId}`)
+                const data = await res.json()
+                setVideo(data.video)
+            } catch (error) {
+                console.error("Error while fetching videos", error)
+            }
+        }
+        fetchVideo()
+    }, [videoId])
+
+    useEffect(() => {
+        async function fetchRecomm() {
+            try {
+                const res = await fetch(`${ALL_VIDEOS}`)
+                const data = await res.json()
+                setRecommendations(data.videos)
+            } catch (error) {
+                console.error("Error while fetching recommended videos", error)
+            }
+        }
+        fetchRecomm()
+    }, [video])
+
+    async function handleSubscribe() {
+        try {
+            const alreadySubscribed = video?.channel?.subscribers?.includes(user?._id)
+            const action = alreadySubscribed ? "dec" : "inc"
+            const res = await fetch(`${SUB_CHANNEL}/${video.channel._id}`, {
+                method: 'PUT',
+                headers: {
+                    "Content-type": "application/json",
+                    "authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ action })
+            })
+            const data = await res.json()
+            console.log(data)
+
+            const updatedVideoRes = await fetch(`${PLAY_VIDEO}/${videoId}`);
+            const updatedData = await updatedVideoRes.json();
+            setVideo(updatedData.video);
+
+            alert(`${alreadySubscribed ? "Unsubscribed" : "Subscribed"} ${video?.channel?.channelName}`)
+            setToggleSub(!toggleSub)
+        } catch (error) {
+            console.error("Error while fetching recommended videos", error)
+        }
     }
+
+    async function handleReaction(action) {
+        try {
+            const res = await fetch(`${REACT_VIDEO}/${video?._id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-type": "application/json",
+                    "authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ action })
+            })
+            const data = await res.json()
+            if (res.status === 200) {
+                const updatedVideoRes = await fetch(`${PLAY_VIDEO}/${videoId}`);
+                const updatedData = await updatedVideoRes.json();
+                setVideo(updatedData.video);
+            } else {
+                alert(data.message)
+            }
+        } catch (error) {
+            console.error("Error while adding reaction", error)
+        }
+    }
+
+    async function handleAddComment() {
+        if (comment.trim() == "") {
+            alert("Cannot add empty comment")
+            return
+        }
+        try {
+            const res = await fetch(`${COMMENT}/${video?._id}`, {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json",
+                    "authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ comment })
+            })
+            const data = await res.json()
+            if (res.status === 201) {
+                const updatedVideoRes = await fetch(`${PLAY_VIDEO}/${videoId}`);
+                const updatedData = await updatedVideoRes.json();
+                setVideo(updatedData.video);
+                alert(data.message)
+                setComment("")
+                setShowCommentBtn(false)
+            } else {
+                alert(data.message)
+            }
+        } catch (error) {
+            console.error("Error while adding comment", error)
+        }
+    }
+
+    const sortedComments = [...(video?.comments || [])].sort(
+        (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+    )
+    const isSubscribed = video?.channel?.subscribers?.includes(user?._id)
+    const filteredRecom = recommendations?.filter(rec => rec?._id !== video?._id)
+    const hasLiked = video?.likedBy?.includes(user?._id)
+    const hasDisliked = video?.dislikedBy?.includes(user?._id)
+
+    if (!video) return <div className="loading-container"><div className="loading-msg"></div></div>;
 
     return (
         <div className="player-page" style={{ opacity: showGuide ? 0.4 : 1, pointerEvents: showGuide ? "none" : "auto", userSelect: showGuide ? "none" : "auto" }}>
             <div className="video-player-container">
                 <div className="video-player">
-                    <video src="https://videos.pexels.com/video-files/4169986/4169986-uhd_2560_1440_30fps.mp4" controls></video>
+                    <video src={video?.videoUrl} controls></video>
                 </div>
                 <div className="video-player-meta">
                     <h1>{video.title}</h1>
                     <div className="extra-options">
                         <div className="channel-block">
-                            <img className="video-avatar" src={video.avatar} alt={video.channelName} />
+                            <img className="video-avatar" src={video.channel?.channelAvatar} alt={video.channel?.channelName} />
                             <div className="channel-meta">
                                 <div className="channel-name">
-                                    <p>{video.channelName}</p>
-                                    <img src="https://img.icons8.com/?size=100&id=36872&format=png&color=FFFFFF" alt="verified-status" title="Verified" style={video.verified ? { display: "block" } : { display: "none" }} loading="lazy" />
+                                    <p>{video.channel?.channelName}</p>
+                                    <img
+                                        src="https://img.icons8.com/?size=100&id=36872&format=png&color=FFFFFF"
+                                        alt="verified-status"
+                                        title="Verified"
+                                        style={video.channel?.verified ? { display: "block" } : { display: "none" }}
+                                        loading="lazy" />
                                 </div>
-                                <span>349k subscribers</span>
+                                <span>{video.channel?.subscriberCount} subscribers</span>
                             </div>
-                            <div className="channel-actions">
+                            <div className="channel-actions" onClick={() => setShowActionSignin(!showActionSignin)}>
                                 <button>Join</button>
-                                <button>Subscribe</button>
+                                <button onClick={token !== null ? handleSubscribe : () => setShowActionSignin(!showActionSignin)} >
+                                    {isSubscribed ? (
+                                        <>
+                                            <img src="https://img.icons8.com/?size=100&id=M0zWhR81xxgX&format=png&color=000000" alt="subscribed-icon" />
+                                            Subscribed
+                                        </>
+                                    ) : (
+                                        "Subscribe"
+                                    )}
+                                </button>
+                                {token ? null : <div className="channel-action-signin" style={{ display: showActionSignin ? "flex" : "none" }}>
+                                    <span>Want to join the action?</span>
+                                    <small>Sign in to subscribe to this channel</small>
+                                    <button><Link to="/login">Sign in</Link></button>
+                                </div>}
                             </div>
                         </div>
                         <div className="video-options">
-                            <div className="likes-block">
-                                <div className="likes">
-                                    <img src="https://img.icons8.com/?size=100&id=15956&format=png&color=FFFFFF" alt="likes" />
-                                    <span>35K</span>
+                            {token ? null : <div className="reaction-cta" style={{ display: showReactionSignin ? "flex" : "none" }}>
+                                <span>Want to react on this video?</span>
+                                <small>Sign in to make your opinion count</small>
+                                <button><Link to="/login">Sign in</Link></button>
+                            </div>}
+                            <div className="likes-block" onClick={() => setShowReactionSignin(!showReactionSignin)}>
+                                <div className="likes" onClick={token ? (e) => {
+                                    e.stopPropagation()
+                                    handleReaction("like")
+                                } : null}>
+                                    <img src={hasLiked ? "https://img.icons8.com/?size=100&id=85618&format=png&color=FFFFFF" :
+                                        "https://img.icons8.com/?size=100&id=85608&format=png&color=FFFFFF"}
+                                        alt="likes" />
+                                    <span>{video.likes}</span>
                                 </div>
-                                <div className="dislikes">
-                                    <img src="https://img.icons8.com/?size=100&id=15957&format=png&color=FFFFFF" alt="dislikes" />
-                                    <span>11K</span>
+                                <div className="dislikes" onClick={token ? (e) => {
+                                    e.stopPropagation()
+                                    handleReaction("dislike")
+                                } : null}>
+                                    <img src={hasDisliked ? "https://img.icons8.com/?size=100&id=87726&format=png&color=FFFFFF" :
+                                        "https://img.icons8.com/?size=100&id=87695&format=png&color=FFFFFF"}
+                                        style={{ transform: "scaleX(-1)" }}
+                                        alt="dislikes" />
+                                    <span>{video.dislikes}</span>
                                 </div>
                             </div>
                             <button>
@@ -69,39 +225,52 @@ function VideoPlayer() {
                     </div>
                     <div className="video-description">
                         <div className="video-description-meta">
-                            <span>{video.views} views</span>
-                            <span>4 days ago</span>
+                            <span>{formatViews(video.views)}</span>
+                            {video?.createdAt ? (
+                                <span>{formatDistanceToNow(new Date(video.createdAt), { addSuffix: true })}</span>
+                            ) : (
+                                null
+                            )}
                         </div>
-                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Accusamus expedita eveniet minus explicabo sit impedit natus repellendus vel magnam ducimus! Dolor numquam ex qui neque, eius nesciunt veniam harum quo natus, reiciendis sequi voluptatibus nemo. Accusamus nulla, maxime laborum cupiditate, labore molestiae deleniti illum reiciendis vero itaque in. Eveniet, mollitia quas. Exercitationem impedit doloribus aliquam sed!</p>
+                        <p>{video?.description}</p>
                     </div>
                     <div className="comments-container">
                         <div className="comments-head">
-                            <h3>502 Comments</h3>
-                            <div className="comment-cta"> {/** this should only show when the user is not signed in */}
-                                <img src="https://yt3.ggpht.com/a/default-user=s48-c-k-c0x00ffffff-no-rj" alt="default-avatar" />
-                                <p onClick={() => setShowSignin(!showSignin)}>Add a comment...</p>
-                                <div className="signin-cta-comments" style={{ display: showSignin ? "flex" : "none" }}>
+                            <h3>{video?.comments?.length} Comments</h3>
+                            <div className="comment-cta">
+                                <img src={token ? user.avatar : "https://yt3.ggpht.com/a/default-user=s48-c-k-c0x00ffffff-no-rj"} alt="default-avatar" />
+                                {token ?
+                                    <div className="add-comment">
+                                        <input type="text"
+                                            placeholder="Add a comment..."
+                                            value={comment}
+                                            onFocus={() => setShowCommentBtn(true)}
+                                            onChange={(e) => {
+                                                setComment(e.target.value)
+                                            }} />
+                                        <div className="add-comment-btns" style={{ display: showCommentBtn ? "flex" : "none" }}>
+                                            <span className="add-comment-btn add-comment-cancel" onClick={() => setShowCommentBtn(false)}>Cancel</span>
+                                            <button className="add-comment-btn add-comment-submit" disabled={comment.trim() === ""} onClick={handleAddComment}>Submit</button>
+                                        </div>
+                                    </div> : <p onClick={() => setShowSignin(!showSignin)}>Add a comment...</p>}
+                                {token ? null : <div className="signin-cta-comments" style={{ display: showSignin ? "flex" : "none" }}>
                                     <span>Want to join the conversation?</span>
                                     <small>Sign in to continue</small>
-                                    <button>Sign in</button>
-                                </div>
+                                    <button><Link to="/login">Sign in</Link></button>
+                                </div>}
                             </div>
                         </div>
-                        <Comment />
-                        <Comment />
-                        <Comment />
-                        <Comment />
+                        {sortedComments.length === 0 ? "" :
+                            sortedComments.map(comment => {
+                                return <Comment comment={comment} key={comment._id} videoId={video?._id} setVideo={setVideo} />
+                            })}
                     </div>
                 </div>
             </div>
             <div className="recommendations">
-                <MiniVideoTile />
-                <MiniVideoTile />
-                <MiniVideoTile />
-                <MiniVideoTile />
-                <MiniVideoTile />
-                <MiniVideoTile />
-                <MiniVideoTile />
+                {filteredRecom?.map(rec => {
+                    return <MiniVideoTile video={rec} key={rec._id} />
+                })}
             </div>
         </div>
     )

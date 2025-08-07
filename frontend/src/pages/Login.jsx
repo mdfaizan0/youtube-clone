@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate } from "react-router-dom"
 import "../utils/style.css"
 import { setToken, setUser } from "../utils/userSlice"
 import { useDispatch, useSelector } from "react-redux"
+import toast from "react-hot-toast"
 
 function Login() {
     const [email, setEmail] = useState("")
@@ -19,7 +20,7 @@ function Login() {
         e.preventDefault()
 
         if (!email || !password) {
-            alert("Please fill all fields.")
+            toast("Please fill all fields.")
             return
         }
 
@@ -31,17 +32,27 @@ function Login() {
                 },
                 body: JSON.stringify({ email, password })
             })
+            const data = await res.json()
             if (!res.ok) {
-                alert(data.message || "Login failed");
+                toast.error(data?.message || "Login failed");
                 return;
             }
-            const data = await res.json()
-            console.log(data)
-            dispatch(setUser(data.user))
-            dispatch(setToken(data.token))
-            navigate("/")
+
+            if (res.status === 200) {
+                dispatch(setUser(data.user))
+                dispatch(setToken(data.token))
+                toast.success(`Welcome Back, ${data.user.name.split(" ")[0]}`, {icon: "👋🏻"})
+                navigate("/")
+                // if response status is 404 or 401, show backend sent message as toast
+            } else if (res.status === 404 || res.status === 401) {
+                toast(data.message)
+            } else {
+                // if anything else, show as toast
+                toast(data.message || "Login failed")
+            }
         } catch (error) {
             console.error("Error while logging in", error)
+            toast.error(error.message)
         }
     }
 

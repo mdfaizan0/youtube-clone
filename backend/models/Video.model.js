@@ -13,6 +13,9 @@ const commentSchema = new mongoose.Schema({
     timestamp: {
         type: Date,
         default: Date.now
+    },
+    edited: {
+        type: Boolean
     }
 });
 

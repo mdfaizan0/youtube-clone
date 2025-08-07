@@ -28,6 +28,18 @@ const channelSchema = mongoose.Schema({
     },
     channelBannerPublicId: {
         type: String
+    },
+    verified: {
+        type: Boolean,
+        default: false
+    },
+    subscribers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
+    }],
+    subscriberCount: {
+        type: Number,
+        default: 0
     }
 }, { timestamps: true })
 
