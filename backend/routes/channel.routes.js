@@ -7,7 +7,7 @@ const channelRouter = Router()
 
 channelRouter.post("/create", protect, uploadChannelBanner.single("channelBanner"), createChannel)
 channelRouter.get("/me", protect, getMyChannel)
-channelRouter.put("/me", protect, updateChannel)
+channelRouter.put("/me", protect, uploadChannelBanner.single("channelBanner"), updateChannel)
 channelRouter.delete("/me", protect, deleteChannel)
 channelRouter.get("/:channelId", getChannelById)
 channelRouter.put("/subscribe/:channelId", protect, toggleSubscriber)

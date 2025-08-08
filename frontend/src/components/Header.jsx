@@ -23,19 +23,16 @@ function Header() {
         const fetchUser = async () => {
             const result = await getProfile(token);
             if (!result) {
-                // toast.error("Something went wrong.");
                 dispatch(logout());
-                // navigate("/login");
             } else if (result.expired) {
-                // toast.error("Session expired. Please login again.");
+                toast.error("Session Expired, please login again")
                 dispatch(logout());
-                // navigate("/login");
             } else {
                 dispatch(setUser(result.user));
             }
         };
         if (!user) fetchUser();
-    }, [token, dispatch, navigate, user]);
+    }, [token, dispatch, navigate, user, user?.channels]);
 
     return (
         <div className="header-wrapper">
@@ -79,7 +76,7 @@ function Header() {
                             <div className="user-details">
                                 <span>{user?.name}</span>
                                 <span>{user?.username}</span>
-                                <span>{user?.channels?.length === 0 ? <Link to="/channel/create">Create a new channel</Link> : <Link to="/channel">View your channel</Link>}</span>
+                                <span onClick={() => setShowProfile(!showProfile)}>{user?.channels?.length === 0 ? <Link to="/channel/create">Create a new channel</Link> : <Link to={`/channel/manage`}>View your channel</Link>}</span>
                             </div>
                         </div>
                         <button
@@ -88,6 +85,7 @@ function Header() {
                                 dispatch(logout());
                                 setShowProfile(!showProfile)
                                 toast.success("Have a good day!", { icon: "✨" })
+                                navigate("/")
                             }}>Logout</button>
                     </div>
                 </div>

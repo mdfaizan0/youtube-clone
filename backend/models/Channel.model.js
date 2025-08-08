@@ -20,7 +20,7 @@ const channelSchema = mongoose.Schema({
     }],
     channelDescription: {
         type: String,
-        default: ""
+        default: "No description available"
     },
     channelBanner: {
         type: String,

@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Link, Navigate, useNavigate } from "react-router-dom"
 import "../utils/style.css"
 import { useSelector } from "react-redux"
+import toast from "react-hot-toast"
 
 function SignUp() {
     const [name, setName] = useState("")
@@ -25,7 +26,7 @@ function SignUp() {
             cloudName: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME,
             uploadPreset: import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET,
             folder: "avatars",
-            sources: ["local", "url"],
+            sources: ["local"],
             cropping: true,
             croppingAspectRatio: 1,
             croppingDefaultSelectionRatio: 0.8,
@@ -108,7 +109,7 @@ function SignUp() {
             const data = await res.json()
             if (res.status === 201) {
                 navigate("/login")
-                toast.success(`Hello ${name.split(" ")[0]}, welcome to the family`, { icon: "👋🏻" })
+                toast.success(`Hello ${name.split(" ")[0]}, welcome to the family, please login`, { icon: "👋🏻" })
                 // if response status is 409, show backend given message and navigate to login
             } else if (res.status === 409) {
                 alert(data.message)

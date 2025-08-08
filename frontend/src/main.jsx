@@ -7,13 +7,16 @@ import { Provider } from "react-redux"
 import appStore from './utils/appStore.js'
 import { ConfirmProvider } from "material-ui-confirm"
 import { Toaster } from "react-hot-toast"
+import "./utils/style.css"
 
 const Home = lazy(() => import('./pages/Home.jsx'))
 const Login = lazy(() => import('./pages/Login.jsx'))
 const SignUp = lazy(() => import('./pages/SignUp.jsx'))
 const NotFound = lazy(() => import('./pages/NotFound.jsx'))
 const VideoPlayer = lazy(() => import('./pages/VideoPlayer.jsx'))
-const Channel = lazy(() => import('./pages/Channel.jsx'))
+const ManageChannel = lazy(() => import('./pages/ManageChannel.jsx'))
+const PublicChannel = lazy(() => import('./pages/PublicChannel.jsx'))
+const CreateChannel = lazy(() => import('./pages/CreateChannel.jsx'))
 
 const appRouter = createBrowserRouter([
   {
@@ -26,7 +29,9 @@ const appRouter = createBrowserRouter([
       { path: "/signup", element: <SignUp /> },
       { path: "/404", element: <NotFound /> },
       { path: "/watch/:videoId", element: <VideoPlayer /> },
-      { path: "/channel/:id", element: <Channel /> }
+      { path: "/channel/create", element: <CreateChannel /> },
+      { path: "/channel/manage", element: <ManageChannel /> },
+      { path: "/channel/:channelId", element: <PublicChannel /> },
     ]
   }
 ])
@@ -86,11 +91,11 @@ createRoot(document.getElementById('root')).render(
       }}
     >
       <Toaster
-        position="top-right"
+        position="top-center"
         reverseOrder={false}
         toastOptions={{
           success: {
-            duration: 2500,
+            duration: 4000,
             style: {
               backgroundColor: '#212121',
               border: "1px solid #00ED09",
@@ -119,7 +124,7 @@ createRoot(document.getElementById('root')).render(
             fontSize: "16px",
             color: "white"
           },
-          duration: 3000,
+          duration: 4000,
         }}
       />
       <Suspense fallback={<div className="loading-container"><div className="loading-msg"></div></div>}>

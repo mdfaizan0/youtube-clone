@@ -2,12 +2,13 @@ import { useContext, useEffect, useState } from "react"
 import "../utils/style.css"
 import { GuideContext } from "../utils/GuideContext"
 import MiniVideoTile from "../components/MiniVideoTile"
-import { Link, useParams } from "react-router-dom"
+import { Link, useNavigate, useParams } from "react-router-dom"
 import { ALL_VIDEOS, COMMENT, PLAY_VIDEO, REACT_VIDEO, SUB_CHANNEL } from "../utils/API_CONFIG"
 import Comment from "../components/Comment"
 import { formatDistanceToNow } from "date-fns"
 import { formatViews } from "../utils/videoUtils"
 import { useSelector } from "react-redux"
+import toast from "react-hot-toast"
 
 function VideoPlayer() {
     const [showSignin, setShowSignin] = useState(false)
@@ -22,18 +23,50 @@ function VideoPlayer() {
     const { showGuide } = useContext(GuideContext)
     const token = useSelector(state => state.user.token)
     const user = useSelector(state => state.user.user)
+    const navigate = useNavigate()
+
     useEffect(() => {
         async function fetchVideo() {
             try {
-                const res = await fetch(`${PLAY_VIDEO}/${videoId}`)
-                const data = await res.json()
-                setVideo(data.video)
+                const res = await fetch(`${PLAY_VIDEO}/${videoId}`);
+                if (res.status === 404) {
+                    navigate("/404", {
+                        replace: true,
+                        state: {
+                            from: `/watch/${videoId}`,
+                            status: 404,
+                            message: "Video not found."
+                        }
+                    });
+                    return;
+                }
+                const data = await res.json();
+                if (!data.video) {
+                    navigate("/404", {
+                        replace: true,
+                        state: {
+                            from: `/watch/${videoId}`,
+                            status: 404,
+                            message: "Video not found."
+                        }
+                    });
+                    return;
+                }
+                setVideo(data.video);
             } catch (error) {
-                console.error("Error while fetching videos", error)
+                console.error("Error while fetching video", error);
+                navigate("/404", {
+                    replace: true,
+                    state: {
+                        from: `/watch/${videoId}`,
+                        status: 500,
+                        message: "Something went wrong fetching the video."
+                    }
+                });
             }
         }
-        fetchVideo()
-    }, [videoId])
+        fetchVideo();
+    }, [videoId]);
 
     useEffect(() => {
         async function fetchRecomm() {
@@ -67,10 +100,10 @@ function VideoPlayer() {
             const updatedData = await updatedVideoRes.json();
             setVideo(updatedData.video);
 
-            alert(`${alreadySubscribed ? "Unsubscribed" : "Subscribed"} ${video?.channel?.channelName}`)
+            toast.success(`${alreadySubscribed ? "Unsubscribed" : "Subscribed"} ${video?.channel?.channelName}`)
             setToggleSub(!toggleSub)
         } catch (error) {
-            console.error("Error while fetching recommended videos", error)
+            console.error("Error while fetching handling subscribe action", error)
         }
     }
 
@@ -90,16 +123,17 @@ function VideoPlayer() {
                 const updatedData = await updatedVideoRes.json();
                 setVideo(updatedData.video);
             } else {
-                alert(data.message)
+                toast(data.message)
             }
         } catch (error) {
             console.error("Error while adding reaction", error)
+            toast.error("Error while adding reaction")
         }
     }
 
     async function handleAddComment() {
         if (comment.trim() == "") {
-            alert("Cannot add empty comment")
+            toast.error("Cannot add empty comment")
             return
         }
         try {
@@ -116,11 +150,11 @@ function VideoPlayer() {
                 const updatedVideoRes = await fetch(`${PLAY_VIDEO}/${videoId}`);
                 const updatedData = await updatedVideoRes.json();
                 setVideo(updatedData.video);
-                alert(data.message)
+                toast.success(data.message)
                 setComment("")
                 setShowCommentBtn(false)
             } else {
-                alert(data.message)
+                toast(data.message)
             }
         } catch (error) {
             console.error("Error while adding comment", error)
@@ -149,7 +183,7 @@ function VideoPlayer() {
                         <div className="channel-block">
                             <img className="video-avatar" src={video.channel?.channelAvatar} alt={video.channel?.channelName} />
                             <div className="channel-meta">
-                                <div className="channel-name">
+                                <Link to={`/channel/${video.channel?._id}`} className="channel-name">
                                     <p>{video.channel?.channelName}</p>
                                     <img
                                         src="https://img.icons8.com/?size=100&id=36872&format=png&color=FFFFFF"
@@ -157,7 +191,7 @@ function VideoPlayer() {
                                         title="Verified"
                                         style={video.channel?.verified ? { display: "block" } : { display: "none" }}
                                         loading="lazy" />
-                                </div>
+                                </Link>
                                 <span>{video.channel?.subscriberCount} subscribers</span>
                             </div>
                             <div className="channel-actions" onClick={() => setShowActionSignin(!showActionSignin)}>

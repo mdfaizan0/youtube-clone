@@ -11,9 +11,7 @@ connectDB()
 
 const app = express()
 
-app.use(cors({
-    credentials: process.env.FRONTEND_ORIGIN
-}))
+app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 

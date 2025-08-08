@@ -6,7 +6,13 @@ import { cloudinary } from "../config/cloudinary.js"
 export async function createChannel(req, res) {
     const { channelName, channelAvatar, channelDescription } = req.body
     const owner = req.user._id
-    const { path: channelBanner, filename: channelBannerPublicId } = req.file
+    let channelBanner = null
+    let channelBannerPublicId = null
+
+    if (req.file) {
+        channelBanner = req.file.path
+        channelBannerPublicId = req.file.filename
+    }
 
     if (!channelName) {
         return res.status(400).json({ message: "Channel Name is required" })
@@ -18,7 +24,14 @@ export async function createChannel(req, res) {
             return res.status(409).json({ message: "A channel already exists", channel: channelExist })
         }
 
-        const newChannel = await Channel.create({ channelName, channelAvatar, channelDescription, channelBanner, owner, channelBannerPublicId })
+        const newChannel = await Channel.create({
+            channelName,
+            channelAvatar: channelAvatar || "https://i.pinimg.com/474x/e5/63/46/e56346cf2916063035418d1ee9a7c5ad.jpg",
+            channelDescription,
+            channelBanner: channelBanner || "https://dummyimage.com/2560x1440/5e5e5e/ffffff.png&text=YouTube+Banner",
+            owner,
+            channelBannerPublicId
+        })
         await newChannel.populate("owner", "username avatar")
         const user = await User.findById(owner)
         if (user) {
@@ -60,6 +73,7 @@ export async function getMyChannel(req, res) {
 export async function updateChannel(req, res) {
     const { channelName, channelAvatar, channelDescription } = req.body
     const owner = req.user._id
+    const channelBanner = req?.file?.path
 
     if (!channelName && !channelAvatar && !channelDescription && !channelBanner) {
         return res.status(400).json({ message: "Atleast one of the fields among Channel Name, Channel Avatar, Channel Description or Channel Banner is required" })
@@ -85,7 +99,7 @@ export async function updateChannel(req, res) {
 
         const channel = await Channel.findOneAndUpdate({ owner }, updates, { new: true })
         if (!channel) return res.status(404).json({ message: "Unable to update details as channel not found", notFound: true })
-        return res.status(200).json({ message: `Channel with ID: ${channel._id} is updated.`, updatedDetails: await Channel.findOne({ owner }) })
+        return res.status(200).json({ message: `Channel with ID: ${channel._id} is updated.`, updatedDetails: await Channel.findOne({ owner }).populate("owner", "username avatar").populate("videos") })
     } catch (error) {
         return res.status(500).json({ message: "Server error while updating channel details", error: error.message })
     }
