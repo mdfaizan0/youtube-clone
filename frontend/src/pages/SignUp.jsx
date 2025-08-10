@@ -84,7 +84,7 @@ function SignUp() {
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
 
         if (!name || !email || !password || !username) {
-            alert("Please fill all fields")
+            toast("Please fill all fields")
             return
         }
 
@@ -112,8 +112,7 @@ function SignUp() {
                 toast.success(`Hello ${name.split(" ")[0]}, welcome to the family, please login`, { icon: "👋🏻" })
                 // if response status is 409, show backend given message and navigate to login
             } else if (res.status === 409) {
-                alert(data.message)
-                navigate("/login")
+                toast.error(data.message)
             }
         } catch (error) {
             console.error("Error while registering user", error)

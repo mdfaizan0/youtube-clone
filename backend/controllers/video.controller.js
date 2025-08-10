@@ -4,12 +4,15 @@ import Video from "../models/Video.model.js"
 import { getVideoDurationInSeconds } from "get-video-duration"
 
 function formatTags(tags) {
-    return typeof tags === 'string' ? tags.split(',').map(tag => tag.trim()) : tags
+    if (typeof tags !== 'string') return tags;
+    return tags.split(/[,\s]+/)
+        .map(tag => tag.trim())
+        .filter(tag => tag !== '');
 }
 
 export async function uploadVideo(req, res) {
     const { title, videoUrl, description, tags } = req.body
-    const { path: thumbnailUrl, filename: thumbnailPublicId } = req.file;
+    const { path: thumbnailUrl, filename: thumbnailPublicId } = req?.file;
 
     if (!req.file) {
         return res.status(400).json({ message: "Thumbnail image is required." });
@@ -21,9 +24,9 @@ export async function uploadVideo(req, res) {
 
     try {
         const duration = await getVideoDurationInSeconds(videoUrl)
-        const channel = await Channel.findOne({ owner: req.user._id }).populate("videos", "views");
+        const userChannel = await Channel.findOne({ owner: req.user._id })
 
-        if (!channel) {
+        if (!userChannel) {
             return res.status(400).json({ message: "Please create a channel first" })
         }
 
@@ -32,41 +35,42 @@ export async function uploadVideo(req, res) {
             videoUrl,
             thumbnailUrl,
             thumbnailPublicId,
-            description,
+            description: description || "No description available",
             tags: formatTags(tags),
             uploader: req.user._id,
             duration: Math.round(duration),
-            channel: channel._id
+            channel: userChannel._id
         })
 
-        channel.videos.push(video._id)
-        await channel.save()
+        userChannel.videos.push(video._id)
+        await userChannel.save()
         await video.populate("channel")
 
-        const totalViews = channel.videos.reduce((acc, video) => acc + video.views, 0)
-        const subscriberCount = channel.subscriberCount;
+        const totalViews = userChannel.videos.reduce((acc, video) => acc + video.views, 0)
+        const subscriberCount = userChannel.subscriberCount;
 
         if (subscriberCount >= 100 || totalViews >= 5000) {
-            channel.verified = true;
-            await channel.save();
+            userChannel.verified = true;
+            await userChannel.save();
         }
+
+        const channel = await Channel.findById(userChannel._id).populate("owner", "username avatar").populate("videos")
 
         return res.status(201).json({
             message: "Video uploaded successfully",
-            video,
-            channelVerified: channel.verified
+            channel
         })
 
     } catch (error) {
         return res.status(500).json({
             message: "Server error while uploading the video",
-            error: error.message
+            error: error.message,
         })
     }
 }
 
 export async function editVideo(req, res) {
-    const { videoId } = req.params
+    const { channelId, videoId } = req.params
     const { title, description, tags } = req.body
     const thumbnailUrl = req.file?.path
 
@@ -93,7 +97,8 @@ export async function editVideo(req, res) {
         if (tags !== undefined) updates.tags = formatTags(tags)
 
         const updatedVideo = await Video.findByIdAndUpdate(videoId, { $set: updates }, { new: true })
-        return res.status(200).json({ message: `${updatedVideo.title} updated successfully`, video: updatedVideo })
+        const channel = await Channel.findById(channelId).populate("owner", "username avatar").populate("videos")
+        return res.status(200).json({ message: `${updatedVideo.title} updated successfully`, channel })
     } catch (error) {
         return res.status(500).json({ message: "Server error while updating the video details", error: error.message })
     }
@@ -103,7 +108,7 @@ export async function deleteVideo(req, res) {
     const { channelId, videoId } = req.params
 
     try {
-        const video = await Video.findById(videoId)
+        const video = await Video.findByIdAndDelete(videoId)
         if (!video) {
             return res.status(404).json({ message: "Unable to delete as video not found" });
         }
@@ -111,13 +116,13 @@ export async function deleteVideo(req, res) {
         if (video.thumbnailPublicId) {
             await cloudinary.uploader.destroy(video.thumbnailPublicId)
         }
-        const deletedVideo = await Video.findByIdAndDelete(videoId)
         const channel = await Channel.findById(channelId)
         if (channel?.videos) {
             channel.videos = channel.videos.filter(vidId => vidId.toString() !== videoId.toString())
             await channel.save()
         }
-        return res.status(200).json({ message: "Deleted the video successfully", video: deletedVideo })
+        const newChannel = await Channel.findById(channelId).populate("owner", "username avatar").populate("videos")
+        return res.status(200).json({ message: "Deleted the video successfully", channel: newChannel })
     } catch (error) {
         return res.status(500).json({ message: "Server error while updating the video details", error: error.message })
     }

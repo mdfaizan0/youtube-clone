@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from "react"
 import toast from "react-hot-toast"
 import { useDispatch, useSelector } from "react-redux"
-import { useNavigate, useParams } from "react-router-dom"
-import { USER_CHANNEL_UPDATE } from "../utils/API_CONFIG"
+import { useNavigate, useParams, useSearchParams } from "react-router-dom"
+import { USER_CHANNEL_UPDATE, USER_UPDATE_VIDEO } from "../utils/API_CONFIG"
 import MiniVideoTile from "../components/MiniVideoTile"
 import { useConfirm } from "material-ui-confirm"
 import { getProfile } from "../utils/authUtils"
 import { logout, setUser } from "../utils/userSlice"
+import VideoEdit from "../components/VideoEdit"
 
 const MAX_BANNER_SIZE = 5 * 1024 * 1024;
 const MAX_BANNER_SIZE_MB = Math.round(MAX_BANNER_SIZE / 1000000);
@@ -19,6 +20,9 @@ function ManageChannel() {
   const [editingChanName, setEditingChanName] = useState(false)
   const [editingChanDesc, setEditingChanDesc] = useState(false)
   const [bannerPreview, setBannerPreview] = useState(null)
+  const [isVideoEditOpen, setIsVideoEditOpen] = useState(false)
+  const [selectedVideo, setSelectedVideo] = useState(null)
+  const [isNewVideo, setIsNewVideo] = useState(false)
 
   const [updatedChanAvaURL, setUpdatedChanAvaURL] = useState(null)
   const [updatedChanBan, setUpdatedChanBan] = useState(null)
@@ -31,18 +35,61 @@ function ManageChannel() {
   const navigate = useNavigate()
   const confirm = useConfirm()
   const dispatch = useDispatch()
+  const [searchParams] = useSearchParams()
+
+  useEffect(() => {
+    if (searchParams.get("upload") === "true") {
+      setIsVideoEditOpen(true)
+      setSelectedVideo(null)
+      setIsNewVideo(!isNewVideo)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     if (!token) {
       toast.error("Looks like you are not signed in");
-      if (location.pathname.startsWith(`/channel/manage/`)) {
-        navigate("/");
-      } else {
-        navigate("/login");
-      }
+      navigate("/login")
       return;
     }
   }, [token]);
+
+  function handleVideoEdit(videoData) {
+    setIsVideoEditOpen(true)
+    setSelectedVideo(videoData)
+  }
+
+  async function handleVideoDelete(video) {
+    try {
+      const { confirmed } = await confirm({
+        title: `Delete ${video.title}?`,
+        description: "This action is irreversible, you are about to delete the video permanently",
+        confirmationText: "Delete",
+        cancellationText: "Cancel"
+      })
+      setLoading(true)
+      if (confirmed) {
+        const res = await fetch(`${USER_UPDATE_VIDEO}/${channel._id}/${video._id}`, {
+          method: "DELETE",
+          headers: {
+            "authorization": `Bearer ${token}`
+          }
+        })
+        const data = await res.json()
+        if (res.status === 200) {
+          toast.success(data.message)
+          setChannel(data.channel)
+          setVideos(data.channel.videos)
+        } else {
+          toast.error(data.message || "Error deleting video")
+        }
+      }
+    } catch (error) {
+      toast.error("Error while deleting video")
+      console.log("Error while deleting video", error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   async function handleDeleteChannel() {
     try {
@@ -64,7 +111,7 @@ function ManageChannel() {
           toast.success(data.message, { icon: "😥" })
           navigate("/")
         } else {
-          toast.error(data.message || "Error creating channel")
+          toast.error(data.message || "Error deleting channel")
         }
       }
 
@@ -84,24 +131,22 @@ function ManageChannel() {
   async function handleSaveChannel() {
     setLoading(true)
     if (updatedChanBan) {
-      if (updatedChanBan.size > MAX_BANNER_SIZE_MB) {
-        const allowed_formats = ["jpg", "jpeg", "png", "webp"]
-        const fileName = updatedChanBan.name.split(".")
-        const fileType = fileName[fileName.length - 1].toLowerCase()
-        if (!allowed_formats.includes(fileType)) {
-          toast.error(`Sorry, but we don't allow ${fileType} filetypes`)
-          toast.error("The allowed formats : jpg, jpeg, png, webp")
-          return
-        }
-        if (updatedChanBan.size > MAX_BANNER_SIZE) {
-          toast.error(`The maximum file size for channel banner is ${MAX_BANNER_SIZE_MB} MB`)
-          return
-        }
+      const allowed_formats = ["jpg", "jpeg", "png", "webp"]
+      const fileName = updatedChanBan.name.split(".")
+      const fileType = fileName[fileName.length - 1].toLowerCase()
+      if (!allowed_formats.includes(fileType)) {
+        toast.error(`Sorry, but we don't allow ${fileType} filetypes`)
+        toast.error("The allowed formats : jpg, jpeg, png, webp")
+        return
+      }
+      if (updatedChanBan.size > MAX_BANNER_SIZE) {
+        toast.error(`The maximum file size for channel banner is ${MAX_BANNER_SIZE_MB} MB`)
+        return
       }
     }
 
     if (!updatedChanBan && !updatedChanName && !updatedChanDesc && !updatedChanAvaURL) {
-      toast.error("Any one of the channel details needs to change to request for it")
+      toast.error("Please update at least one channel detail before saving changes")
       return
     }
 
@@ -150,6 +195,12 @@ function ManageChannel() {
       setUpdatedChanBan(file)
     }
     e.target.value = ""
+  }
+
+  function handleModalClose() {
+    setIsVideoEditOpen(false)
+    navigate("/channel/manage")
+    setIsNewVideo(false)
   }
 
   function handleUpdateChannelAvatar() {
@@ -206,6 +257,11 @@ function ManageChannel() {
     }
   }
 
+  function handleAfterSave(newChannel) {
+    setChannel(newChannel)
+    setVideos(newChannel.videos)
+  }
+
   useEffect(() => {
     if (!token) return
     async function fetchUserChannel() {
@@ -244,7 +300,7 @@ function ManageChannel() {
       if (bannerPreview) URL.revokeObjectURL(bannerPreview);
     }
   }, [bannerPreview])
-  
+
   return (<>
     {loading ? (
       <div className="loading-container">
@@ -357,22 +413,23 @@ function ManageChannel() {
           </div>
         </div>
         <span>Videos</span>
-        <div className="channel-videos">
+        <div className="channel-videos" style={{ display: videos.length === 0 ? "flex" : "grid" }}>
           {
             videos.length > 0 ?
               videos.map(video => {
-                return <MiniVideoTile video={video} key={video._id} page="channel" />
+                return <MiniVideoTile video={video} key={video._id} page="channel" isOwner={true} handleVideoEdit={handleVideoEdit} handleVideoDelete={handleVideoDelete} />
               }) :
               <div className="no-videos-cta">
                 <img src="https://www.gstatic.com/youtube/img/channels/core_channel_no_activity_dark.svg" alt="no-videos-cta" />
                 <strong>Create content on any device</strong>
                 <span>Upload and record at home or on the go. <br />Everything you make public will appear here.</span>
-                <button>Upload Video</button>
+                <button onClick={() => navigate("/channel/manage?upload=true")}>Upload Video</button>
               </div>
           }
         </div>
       </div>
     )}
+    {isVideoEditOpen ? <VideoEdit video={selectedVideo} closeIt={handleModalClose} handleAfterSave={handleAfterSave} isNewVideo={isNewVideo} /> : null}
   </>)
 }
 

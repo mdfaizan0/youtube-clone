@@ -51,46 +51,46 @@ function Header() {
                     <img src="https://img.icons8.com/?size=100&id=11153&format=png&color=FFFFFF" alt="create" />
                     <span>Create</span>
                     <div className="create-options" style={{ display: showCreate ? "block" : "none" }}>
-                        <div className="upload-video option">
-                            <img src="https://img.icons8.com/?size=100&id=111348&format=png&color=FFFFFF" alt="upload-video" />
-                            <span>Upload Video</span>
-                        </div>
-                        <div className="go-live option">
-                            <img src="https://img.icons8.com/?size=100&id=ye3pWzAxNYw3&format=png&color=FFFFFF" alt="go-live" />
-                            <span>Go Live</span>
-                        </div>
-                        <div className="create-post option">
-                            <img src="https://img.icons8.com/?size=100&id=Isc1rCN9qu0y&format=png&color=FFFFFF" alt="create-post" />
-                            <span>Create Post</span>
-                        </div>
+                        <div className="upload-video option" onClick={() => navigate("/channel/manage?upload=true")}>
+                        <img src="https://img.icons8.com/?size=100&id=111348&format=png&color=FFFFFF" alt="upload-video" />
+                        <span>Upload Video</span>
                     </div>
-                </div>
-                <div className="header-sign-in">
-                    {isLoggedIn ? <img src={user?.avatar} alt="avatar" className="header-avatar" onClick={() => setShowProfile(!showProfile)} /> : <Link to="/login" className="signin-btn">
-                        <img src="https://img.icons8.com/?size=100&id=23400&format=png&color=FFFFFF" alt="person" />
-                        <p>Sign in</p>
-                    </Link>}
-                    <div className="user-profile" style={{ display: showProfile ? "flex" : "none" }}>
-                        <div className="profile">
-                            <img src={user?.avatar} alt="avatar" className="header-avatar" />
-                            <div className="user-details">
-                                <span>{user?.name}</span>
-                                <span>{user?.username}</span>
-                                <span onClick={() => setShowProfile(!showProfile)}>{user?.channels?.length === 0 ? <Link to="/channel/create">Create a new channel</Link> : <Link to={`/channel/manage`}>View your channel</Link>}</span>
-                            </div>
-                        </div>
-                        <button
-                            className="logout-btn"
-                            onClick={() => {
-                                dispatch(logout());
-                                setShowProfile(!showProfile)
-                                toast.success("Have a good day!", { icon: "✨" })
-                                navigate("/")
-                            }}>Logout</button>
+                    <div className="go-live option">
+                        <img src="https://img.icons8.com/?size=100&id=ye3pWzAxNYw3&format=png&color=FFFFFF" alt="go-live" />
+                        <span>Go Live</span>
+                    </div>
+                    <div className="create-post option">
+                        <img src="https://img.icons8.com/?size=100&id=Isc1rCN9qu0y&format=png&color=FFFFFF" alt="create-post" />
+                        <span>Create Post</span>
                     </div>
                 </div>
             </div>
+            <div className="header-sign-in">
+                {isLoggedIn ? <img src={user?.avatar} alt="avatar" className="header-avatar" onClick={() => setShowProfile(!showProfile)} /> : <Link to="/login" className="signin-btn">
+                    <img src="https://img.icons8.com/?size=100&id=23400&format=png&color=FFFFFF" alt="person" />
+                    <p>Sign in</p>
+                </Link>}
+                <div className="user-profile" style={{ display: showProfile ? "flex" : "none" }}>
+                    <div className="profile">
+                        <img src={user?.avatar} alt="avatar" className="header-avatar" />
+                        <div className="user-details">
+                            <span>{user?.name}</span>
+                            <span>{user?.username}</span>
+                            <span onClick={() => setShowProfile(!showProfile)}>{user?.channels?.length === 0 ? <Link to="/channel/create">Create a new channel</Link> : <Link to={`/channel/manage`}>Manage your channel</Link>}</span>
+                        </div>
+                    </div>
+                    <button
+                        className="logout-btn"
+                        onClick={() => {
+                            dispatch(logout());
+                            setShowProfile(!showProfile)
+                            toast.success("Have a good day!", { icon: "✨" })
+                            navigate("/")
+                        }}>Logout</button>
+                </div>
+            </div>
         </div>
+        </div >
     )
 }
 

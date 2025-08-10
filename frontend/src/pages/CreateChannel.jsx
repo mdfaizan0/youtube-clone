@@ -47,7 +47,6 @@ function CreateChannel() {
             }
             formData.append("channelBanner", data.channelBanner[0])
         }
-        console.log("channelAvatarURL", channelAvatarURL)
 
         if (data.channelName) formData.append("channelName", data.channelName)
         if (data.channelDescription) formData.append("channelDescription", data.channelDescription)
@@ -134,57 +133,61 @@ function CreateChannel() {
     }
 
     return (
-        <div className="create-channel-page">
-            <img src="https://img.freepik.com/free-vector/diverse-people-hello-welcome-gesture-multinational-characters-waving-hands-happy-young-man-senior-lady-arab-girl-lgbt-person-positive-greeting-gesturing-line-art-flat-vector-illustration_107791-10896.jpg?t=st=1754602348~exp=1754605948~hmac=e293064757ea4595b12328326c1e570b62b97de2ee52fbf2fe0e9ba7919310ba&w=1480" alt="vector" />
-            <div className="create-channel-form">
-                <h1>Create a new channel</h1>
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <div className="avatar-group">
-                        <img
-                            src={channelAvatarURL ? channelAvatarURL : "https://img.icons8.com/?size=100&id=tZuAOUGm9AuS&format=png&color=000000"}
-                            alt="Channel Avatar"
-                            className="channel-avatar-preview"
-                            style={{ width: "80px", height: "80px", borderRadius: "50%", objectFit: "cover", marginTop: "10px" }}
-                        />
-                        <button type="button" onClick={handleUploadChannelAvatar}>
-                            {channelAvatarURL ? "Change Channel Avatar" : "Upload Channel Avatar"}
-                        </button>
+        <>
+            {isSubmitting ? <div className="loading-container"><div className="loading-msg"></div></div> :
+                <div className="create-channel-page">
+                    <img src="https://img.freepik.com/free-vector/diverse-people-hello-welcome-gesture-multinational-characters-waving-hands-happy-young-man-senior-lady-arab-girl-lgbt-person-positive-greeting-gesturing-line-art-flat-vector-illustration_107791-10896.jpg?t=st=1754602348~exp=1754605948~hmac=e293064757ea4595b12328326c1e570b62b97de2ee52fbf2fe0e9ba7919310ba&w=1480" alt="vector" />
+                    <div className="create-channel-form">
+                        <h1>Create a new channel</h1>
+                        <form onSubmit={handleSubmit(onSubmit)}>
+                            <div className="avatar-group">
+                                <img
+                                    src={channelAvatarURL ? channelAvatarURL : "https://img.icons8.com/?size=100&id=tZuAOUGm9AuS&format=png&color=000000"}
+                                    alt="Channel Avatar"
+                                    className="channel-avatar-preview"
+                                    style={{ width: "80px", height: "80px", borderRadius: "50%", objectFit: "cover", marginTop: "10px" }}
+                                />
+                                <button type="button" onClick={handleUploadChannelAvatar}>
+                                    {channelAvatarURL ? "Change Channel Avatar" : "Upload Channel Avatar"}
+                                </button>
+                            </div>
+                            <div className="input-group">
+                                <input type="text" placeholder=" " {...register("channelName", { required: "Channel name is required" })} />
+                                {errors.channelName && (
+                                    <p className="error-msg">{errors.channelName.message}</p>
+                                )}
+                                <label>Channel Name (required)</label>
+                            </div>
+                            <div className="textarea-group">
+                                <textarea
+                                    placeholder=" "
+                                    {...register("channelDescription", {
+                                        maxLength: 500,
+                                    })}
+                                />
+                                <label> Channel Description</label>
+                            </div>
+                            <label>Channel Banner</label>
+                            <div className="banner-group">
+                                <input
+                                    type="file"
+                                    accept="image/jpg, image/jpeg, image/png, image/webp"
+                                    {...register("channelBanner")}
+                                    onChange={(e) => {
+                                        if (e.target.files && e.target.files[0]) {
+                                            const file = e.target.files[0];
+                                            setBannerPreview(URL.createObjectURL(file));
+                                        }
+                                    }} />
+                                {bannerPreview && <img src={bannerPreview} alt="banner-preview" style={{ width: "100%", height: "auto", marginTop: "10px" }} />}
+                            </div>
+                            <button type="submit" disabled={isSubmitting} className="channel-create-btn">
+                                Create Channel
+                            </button>
+                        </form>
                     </div>
-                    <div className="input-group">
-                        <input type="text" placeholder=" " {...register("channelName", { required: "Channel name is required" })} />
-                        {errors.channelName && (
-                            <p className="error-msg">{errors.channelName.message}</p>
-                        )}
-                        <label>Channel Name</label>
-                    </div>
-                    <div className="textarea-group">
-                        <textarea
-                            placeholder=" "
-                            {...register("channelDescription", {
-                                maxLength: 500,
-                            })}
-                        />
-                        <label> Channel Description</label>
-                    </div>
-                    <div className="banner-group">
-                        <input
-                            type="file"
-                            accept="image/jpg, image/jpeg, image/png, image/webp"
-                            {...register("channelBanner")}
-                            onChange={(e) => {
-                                if (e.target.files && e.target.files[0]) {
-                                    const file = e.target.files[0];
-                                    setBannerPreview(URL.createObjectURL(file));
-                                }
-                            }} />
-                        {bannerPreview && <img src={bannerPreview} alt="banner-preview" style={{ width: "100%", height: "auto", marginTop: "10px" }} />}
-                    </div>
-                    <button type="submit" disabled={isSubmitting} className="channel-create-btn">
-                        {isSubmitting ? <div className="loading-container"><div className="loading-msg"></div></div> : "Create Channel"}
-                    </button>
-                </form>
-            </div>
-        </div>
+                </div>}
+        </>
     )
 }
 

@@ -209,7 +209,7 @@ function VideoPlayer() {
                                 {token ? null : <div className="channel-action-signin" style={{ display: showActionSignin ? "flex" : "none" }}>
                                     <span>Want to join the action?</span>
                                     <small>Sign in to subscribe to this channel</small>
-                                    <button><Link to="/login">Sign in</Link></button>
+                                    <Link to="/login"><button>Sign in</button></Link>
                                 </div>}
                             </div>
                         </div>
@@ -217,7 +217,7 @@ function VideoPlayer() {
                             {token ? null : <div className="reaction-cta" style={{ display: showReactionSignin ? "flex" : "none" }}>
                                 <span>Want to react on this video?</span>
                                 <small>Sign in to make your opinion count</small>
-                                <button><Link to="/login">Sign in</Link></button>
+                                <Link to="/login"><button>Sign in</button></Link>
                             </div>}
                             <div className="likes-block" onClick={() => setShowReactionSignin(!showReactionSignin)}>
                                 <div className="likes" onClick={token ? (e) => {
@@ -290,7 +290,7 @@ function VideoPlayer() {
                                 {token ? null : <div className="signin-cta-comments" style={{ display: showSignin ? "flex" : "none" }}>
                                     <span>Want to join the conversation?</span>
                                     <small>Sign in to continue</small>
-                                    <button><Link to="/login">Sign in</Link></button>
+                                    <Link to="/login"><button>Sign in</button></Link>
                                 </div>}
                             </div>
                         </div>

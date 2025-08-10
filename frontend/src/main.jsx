@@ -47,7 +47,7 @@ createRoot(document.getElementById('root')).render(
               color: "#FFFFFF",
               border: "none",
               borderRadius: "16px",
-              zIndex: 20000
+              zIndex: 11000
             }
           }
         },
@@ -102,7 +102,8 @@ createRoot(document.getElementById('root')).render(
               padding: "12px 16px",
               fontWeight: "500",
               fontSize: "16px",
-              color: "white"
+              color: "white",
+              zIndex: 13000
             },
           },
           error: {
@@ -113,7 +114,8 @@ createRoot(document.getElementById('root')).render(
               padding: "12px 16px",
               fontWeight: "500",
               fontSize: "16px",
-              color: "white"
+              color: "white",
+              zIndex: 13000
             },
           },
           style: {
@@ -122,7 +124,9 @@ createRoot(document.getElementById('root')).render(
             padding: "12px 16px",
             fontWeight: "500",
             fontSize: "16px",
-            color: "white"
+            color: "white",
+            zIndex: 13000,
+            textAlign: "center"
           },
           duration: 4000,
         }}
