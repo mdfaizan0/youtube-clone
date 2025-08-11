@@ -38,6 +38,11 @@ function ManageChannel() {
   const [searchParams] = useSearchParams()
 
   useEffect(() => {
+    setUpdatedChanDesc(channel?.channelDescription || "")
+    setUpdatedChanName(channel?.channelName || "")
+  }, [channel])
+
+  useEffect(() => {
     if (searchParams.get("upload") === "true") {
       setIsVideoEditOpen(true)
       setSelectedVideo(null)
@@ -99,21 +104,31 @@ function ManageChannel() {
         confirmationText: "Delete",
         cancellationText: "Cancel"
       })
-      if (confirmed) {
-        const res = await fetch(USER_CHANNEL_UPDATE, {
-          method: "DELETE",
-          headers: {
-            "authorization": `Bearer ${token}`
+      if (!confirmed) return;
+
+      await toast.promise(
+        (async () => {
+          const res = await fetch(USER_CHANNEL_UPDATE, {
+            method: "DELETE",
+            headers: {
+              authorization: `Bearer ${token}`
+            }
+          });
+          const data = await res.json();
+
+          if (res.status !== 200) {
+            throw new Error(data.message || "Error deleting channel");
           }
-        })
-        const data = await res.json()
-        if (res.status === 200) {
-          toast.success(data.message, { icon: "😥" })
-          navigate("/")
-        } else {
-          toast.error(data.message || "Error deleting channel")
+
+          navigate("/");
+          return data.message;
+        })(),
+        {
+          loading: "Deleting channel...",
+          success: (message) => message || "Channel deleted successfully",
+          error: (err) => err.message || "Failed to delete channel"
         }
-      }
+      );
 
       const result = await getProfile(token);
       if (result.expired) {
@@ -123,13 +138,11 @@ function ManageChannel() {
         dispatch(setUser(result.user));
       }
     } catch (error) {
-      toast.error("Error while deleting channel")
       console.log("Error while deleting channel", error)
     }
   }
 
   async function handleSaveChannel() {
-    setLoading(true)
     if (updatedChanBan) {
       const allowed_formats = ["jpg", "jpeg", "png", "webp"]
       const fileName = updatedChanBan.name.split(".")
@@ -150,6 +163,7 @@ function ManageChannel() {
       return
     }
 
+    setLoading(true)
     const formData = new FormData();
     if (updatedChanName) {
       formData.append("channelName", updatedChanName)
@@ -351,6 +365,7 @@ function ManageChannel() {
                   placeholder="Enter a new channel name"
                   style={{ display: editingChanName ? "block" : "none" }}
                   onChange={(e) => setUpdatedChanName(e.target.value)}
+                  value={updatedChanName}
                 />
               </div>
               <img
@@ -380,6 +395,7 @@ function ManageChannel() {
                 cols="61"
                 maxLength="300"
                 onChange={(e) => setUpdatedChanDesc(e.target.value)}
+                value={updatedChanDesc}
               />
               <img
                 src="https://img.icons8.com/?size=100&id=71201&format=png&color=FFFFFF"

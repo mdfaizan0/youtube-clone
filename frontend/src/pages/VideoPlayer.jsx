@@ -93,8 +93,7 @@ function VideoPlayer() {
                 },
                 body: JSON.stringify({ action })
             })
-            const data = await res.json()
-            console.log(data)
+            await res.json()
 
             const updatedVideoRes = await fetch(`${PLAY_VIDEO}/${videoId}`);
             const updatedData = await updatedVideoRes.json();
@@ -175,7 +174,7 @@ function VideoPlayer() {
         <div className="player-page" style={{ opacity: showGuide ? 0.4 : 1, pointerEvents: showGuide ? "none" : "auto", userSelect: showGuide ? "none" : "auto" }}>
             <div className="video-player-container">
                 <div className="video-player">
-                    <video src={video?.videoUrl} controls></video>
+                    <video src={video?.videoUrl} controls autoPlay></video>
                 </div>
                 <div className="video-player-meta">
                     <h1>{video.title}</h1>

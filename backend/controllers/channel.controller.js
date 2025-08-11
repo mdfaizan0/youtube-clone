@@ -28,7 +28,7 @@ export async function createChannel(req, res) {
             channelName,
             channelAvatar: channelAvatar || "https://i.pinimg.com/474x/e5/63/46/e56346cf2916063035418d1ee9a7c5ad.jpg",
             channelDescription,
-            channelBanner: channelBanner || "https://dummyimage.com/2560x1440/5e5e5e/ffffff.png&text=YouTube+Banner",
+            channelBanner: channelBanner || "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/1a989815-8731-4b08-8124-db03acb4ada8/di7xmh0-8c21639f-8b54-4c3b-bed0-b50b6fbc8d8b.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcLzFhOTg5ODE1LTg3MzEtNGIwOC04MTI0LWRiMDNhY2I0YWRhOFwvZGk3eG1oMC04YzIxNjM5Zi04YjU0LTRjM2ItYmVkMC1iNTBiNmZiYzhkOGIucG5nIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.FdXzqcYPmKrGo-kOef_Na2ovW9QoA5FfoOyh2ykoNmo",
             owner,
             channelBannerPublicId
         })
@@ -128,7 +128,8 @@ export async function deleteChannel(req, res) {
         }
         const videos = await Video.deleteMany({ channel: channel._id })
         await Channel.deleteOne(channel._id)
-        return res.status(200).json({ message: `${channel.channelName} channel deleted successfully ${videos.deletedCount > 0 ? `along with ${videos.deletedCount} videos` : ""}`, deletedChannel: channel })
+        return res.status(200).json(
+            { message: `${channel.channelName} channel deleted successfully ${videos.deletedCount > 0 ? `along with ${videos.deletedCount} video${videos.deletedCount > 1 ? "s" : ""}` : ""}`, deletedChannel: channel })
     } catch (error) {
         return res.status(500).json({ message: "Server error while deleting the channel", error: error.message })
     }

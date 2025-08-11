@@ -17,6 +17,7 @@ const VideoPlayer = lazy(() => import('./pages/VideoPlayer.jsx'))
 const ManageChannel = lazy(() => import('./pages/ManageChannel.jsx'))
 const PublicChannel = lazy(() => import('./pages/PublicChannel.jsx'))
 const CreateChannel = lazy(() => import('./pages/CreateChannel.jsx'))
+const SearchResults = lazy(() => import('./pages/SearchResults.jsx'))
 
 const appRouter = createBrowserRouter([
   {
@@ -32,6 +33,7 @@ const appRouter = createBrowserRouter([
       { path: "/channel/create", element: <CreateChannel /> },
       { path: "/channel/manage", element: <ManageChannel /> },
       { path: "/channel/:channelId", element: <PublicChannel /> },
+      { path: "/search", element: <SearchResults /> },
     ]
   }
 ])

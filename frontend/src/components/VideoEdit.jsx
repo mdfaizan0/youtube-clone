@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import toast from "react-hot-toast";
-import { UPLOAD_VID, USER_UPDATE_VIDEO } from "../utils/API_CONFIG";
+import { ALL_VIDEOS, UPLOAD_VID, USER_UPDATE_VIDEO } from "../utils/API_CONFIG";
 import { useSelector } from "react-redux";
 
 const MAX_THUMB_SIZE = 3 * 1024 * 1024;
@@ -15,6 +15,9 @@ function VideoEdit({ video, closeIt, handleAfterSave, isNewVideo }) {
     const [newDescription, setNewDescription] = useState("")
     const [newTags, setNewTags] = useState("")
     const [loading, setLoading] = useState(true)
+    const [selectedCategory, setSelectedCategory] = useState("");
+    const [customCategory, setCustomCategory] = useState("");
+    const [videos, setVideos] = useState(null)
 
     const _id = video?._id
     const description = video?.description
@@ -27,10 +30,36 @@ function VideoEdit({ video, closeIt, handleAfterSave, isNewVideo }) {
     const token = useSelector(state => state.user.token)
 
     useEffect(() => {
+        async function fetchVideos() {
+            try {
+                const res = await fetch(ALL_VIDEOS)
+                const data = await res.json()
+                if (res.status === 200) {
+                    setVideos(data.videos)
+                } else {
+                    navigate("/404", {
+                        replace: true,
+                        state: {
+                            from: `/`,
+                            status: res.status,
+                            messaage: "Unable to fetch feed videos"
+                        }
+                    })
+                }
+            } catch (error) {
+                toast.error("Unable to fetch videos")
+                console.error("Unable to fetch videos", error)
+            }
+        }
+        fetchVideos()
+    }, [])
+
+    useEffect(() => {
         if (!video) return;
         setNewTitle(title || "");
         setNewDescription(description || "");
         setNewTags((tags || []).join(", "));
+        setSelectedCategory(video?.category || "");
         setThumbPreview(null);
         setThumbnail(null);
         setLoading(false)
@@ -71,7 +100,7 @@ function VideoEdit({ video, closeIt, handleAfterSave, isNewVideo }) {
                 return
             }
         } else {
-            if (!newTitle && !newDescription && !newTags && !thumbnail) {
+            if (!newTitle && !newDescription && !newTags && !thumbnail && !selectedCategory) {
                 toast.error("Please update at least one channel detail before saving changes")
                 return
             }
@@ -96,6 +125,20 @@ function VideoEdit({ video, closeIt, handleAfterSave, isNewVideo }) {
         }
         if (thumbnail) {
             formData.append("thumbnail", thumbnail)
+        }
+        if (selectedCategory) {
+            if (selectedCategory === "Other") {
+                if (isNewVideo && !customCategory.trim()) {
+                    toast.error("Please enter a custom category");
+                    return;
+                }
+                if (customCategory.trim()) {
+                    const formatted = customCategory.trim().charAt(0).toUpperCase() + customCategory.trim().slice(1).toLowerCase();
+                    formData.append("category", formatted);
+                }
+            } else {
+                formData.append("category", selectedCategory);
+            }
         }
         setLoading(true)
         try {
@@ -129,6 +172,18 @@ function VideoEdit({ video, closeIt, handleAfterSave, isNewVideo }) {
         }
     }
 
+    useEffect(() => {
+        const close = (e) => {
+            if (e.keyCode === 27) {
+                closeIt()
+            }
+        }
+        window.addEventListener('keydown', close)
+        return () => window.removeEventListener('keydown', close)
+    }, [])
+
+    const categories = [...new Set(videos?.map(vid => vid.category).filter(cat => cat && cat.trim().toLowerCase() !== "uncategorized")), "Other"]
+
     return (
         <div className="video-edit-overlay">
             <div className="video-edit-modal">
@@ -160,6 +215,25 @@ function VideoEdit({ video, closeIt, handleAfterSave, isNewVideo }) {
                                 <label>Tags</label>
                                 <input type="text" placeholder="Add tags" value={newTags} onChange={(e) => setNewTags(e.target.value)} />
                                 <small>Enter a comma after each tag</small>
+                            </div>
+                            <div className="edit-group category">
+                                <label>Category</label>
+                                <select
+                                    value={selectedCategory}
+                                    onChange={(e) => setSelectedCategory(e.target.value)}
+                                >
+                                    <option value="">-- Select a category --</option>
+                                    {categories.map((cat, index) => <option key={index}>{cat}</option>)}
+                                </select>
+
+                                {selectedCategory === "Other" && (
+                                    <input
+                                        type="text"
+                                        placeholder="Enter custom category"
+                                        value={customCategory}
+                                        onChange={(e) => setCustomCategory(e.target.value)}
+                                    />
+                                )}
                             </div>
                             <div className="thumbnail-edit-group">
                                 <p>Thumbnail {isNewVideo ? "(required)" : ""}</p>

@@ -11,7 +11,7 @@ function formatTags(tags) {
 }
 
 export async function uploadVideo(req, res) {
-    const { title, videoUrl, description, tags } = req.body
+    const { title, videoUrl, description, tags, category } = req.body
     const { path: thumbnailUrl, filename: thumbnailPublicId } = req?.file;
 
     if (!req.file) {
@@ -30,11 +30,16 @@ export async function uploadVideo(req, res) {
             return res.status(400).json({ message: "Please create a channel first" })
         }
 
+        const normalizedCategory = category
+            ? category.trim().charAt(0).toUpperCase() + category.trim().slice(1).toLowerCase()
+            : "Uncategorized";
+
         const video = await Video.create({
             title,
             videoUrl,
             thumbnailUrl,
             thumbnailPublicId,
+            category: normalizedCategory,
             description: description || "No description available",
             tags: formatTags(tags),
             uploader: req.user._id,
@@ -71,7 +76,7 @@ export async function uploadVideo(req, res) {
 
 export async function editVideo(req, res) {
     const { channelId, videoId } = req.params
-    const { title, description, tags } = req.body
+    const { title, description, tags, category } = req.body
     const thumbnailUrl = req.file?.path
 
     if (!title && !description && !tags && !thumbnailUrl) {
@@ -95,6 +100,9 @@ export async function editVideo(req, res) {
         if (title) updates.title = title
         if (description) updates.description = description
         if (tags !== undefined) updates.tags = formatTags(tags)
+        if (category) {
+            updates.category = category.trim().charAt(0).toUpperCase() + category.trim().slice(1).toLowerCase();
+        }
 
         const updatedVideo = await Video.findByIdAndUpdate(videoId, { $set: updates }, { new: true })
         const channel = await Channel.findById(channelId).populate("owner", "username avatar").populate("videos")
@@ -168,10 +176,10 @@ export async function searchVideo(req, res) {
                 { title: { $regex: query, $options: "i" } },
                 { tags: { $in: [query.toLowerCase()] } }
             ]
-        }).limit(20).sort({ createdAt: -1 }).populate("uploader", "username avatar")
+        }).limit(20).sort({ createdAt: -1 }).populate("channel")
 
         if (videos.length === 0) {
-            return res.status(404).json({ message: "Unable to find any video" })
+            return res.status(404).json({ message: "No results found" })
         }
 
         return res.status(200).json({ message: "Searched videos successfully", videos })

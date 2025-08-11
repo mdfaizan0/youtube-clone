@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { CHANNEL_CREATE } from "../utils/API_CONFIG"
 import toast from "react-hot-toast"
 import { useNavigate } from "react-router-dom"
+import { getProfile } from "../utils/authUtils"
+import { logout, setUser } from "../utils/userSlice"
 
 const MAX_BANNER_SIZE = 5 * 1024 * 1024;
 const MAX_BANNER_SIZE_MB = Math.round(MAX_BANNER_SIZE / 1000000);
@@ -15,6 +17,7 @@ function CreateChannel() {
     const user = useSelector(state => state?.user?.user)
     const token = useSelector(state => state?.user?.token)
     const navigate = useNavigate()
+    const dispatch = useDispatch()
 
     useEffect(() => {
         if (user?.channels.length >= 1) {
@@ -65,6 +68,14 @@ function CreateChannel() {
                 navigate(`/channel/manage`)
             } else {
                 toast.error(json.message || "Error creating channel")
+            }
+
+            const result = await getProfile(token);
+            if (result.expired) {
+                toast.error("Session Expired, please login again")
+                dispatch(logout());
+            } else {
+                dispatch(setUser(result.user));
             }
         } catch (error) {
             console.error("Error while creating the channel", error)

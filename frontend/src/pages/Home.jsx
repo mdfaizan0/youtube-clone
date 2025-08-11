@@ -8,7 +8,13 @@ import { ALL_VIDEOS } from "../utils/API_CONFIG"
 function Home() {
   const [feed, setFeed] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [filteredFeed, setFilteredFeed] = useState(null)
+  const [activeCategory, setActiveCategory] = useState("All")
   const { showGuide } = useContext(GuideContext)
+
+  useEffect(() => {
+    if (feed) setFilteredFeed(feed)
+  }, [feed])
 
   useEffect(() => {
     setLoading(true)
@@ -38,6 +44,18 @@ function Home() {
     fetchFeed()
   }, [])
 
+  const categories = [...new Set(feed?.map(vid => vid.category))]
+  function handleCategory(cat) {
+    setActiveCategory(cat)
+    if (cat === "All") {
+      setFilteredFeed(feed)
+    } else {
+      setFilteredFeed(feed.filter(
+        vid => vid.category.trim().toLowerCase() === cat.trim().toLowerCase()
+      ))
+    }
+  }
+
   return (
     <>
       {loading ? (
@@ -48,14 +66,11 @@ function Home() {
         <div className="content-container">
           {showGuide ? <Sidebar /> : <GuideAside />}
           <div className="category-bar" style={{ marginLeft: showGuide ? "12vw" : "4vw" }} >
-            <span>All</span>
-            <span>APIs</span>
-            <span>Scripting Language</span>
-            <span>Gaming</span>
-            <span>AI</span>
+            <span className={activeCategory === "All" ? "active" : ""} onClick={() => handleCategory("All")}>All</span>
+            {categories.map((cat, index) => <span className={activeCategory === cat ? "active" : ""} key={index} onClick={() => handleCategory(cat)}>{cat}</span>)}
           </div>
           <div className="video-grid" style={{ marginLeft: showGuide ? "12vw" : "4vw" }} >
-            {feed?.map(vid => {
+            {filteredFeed?.map(vid => {
               return <VideoTile video={vid} key={vid._id} />
             })}
           </div>

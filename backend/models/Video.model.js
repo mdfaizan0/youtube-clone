@@ -37,8 +37,7 @@ const videoSchema = mongoose.Schema({
         required: true
     },
     thumbnailPublicId: {
-        type: String,
-        required: true
+        type: String
     },
     uploader: {
         type: mongoose.Schema.Types.ObjectId,
@@ -77,6 +76,10 @@ const videoSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Channel",
         required: true
+    },
+    category: {
+        type: String,
+        default: "Uncategorized"
     }
 }, { timestamps: true })
 
