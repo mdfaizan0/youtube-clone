@@ -227,7 +227,7 @@ function VideoEdit({ video, closeIt, handleAfterSave, isNewVideo }) {
                         <div className="video-edit-modal-header">
                             <h2>{isNewVideo ? "Upload" : "Update"} Video</h2>
                             <button onClick={() => closeIt()} className="video-modal-close">
-                                <img src="https://img.icons8.com/?size=100&id=3062&format=png&color=FFFFFF" alt="close" />
+                                <img src="https://img.icons8.com/?size=100&id=3062&format=png&color=FFFFFF" alt="close" loading="lazy"/>
                             </button>
                         </div>
                         <div className="video-edit-modal-content">
@@ -271,7 +271,7 @@ function VideoEdit({ video, closeIt, handleAfterSave, isNewVideo }) {
                                 <p>Thumbnail {isNewVideo ? "(required)" : ""}</p>
                                 <small>Set a thumbnail that stands out and draws viewers' attention.</small>
                                 <div className="thumbnail-preview">
-                                    <img src={thumbPreview || (isNewVideo ? "https://dummyimage.com/1280x720/028282/000000.png" : thumbnailUrl)} alt="thumbnail-prev" />
+                                    <img src={thumbPreview || (isNewVideo ? "https://dummyimage.com/1280x720/028282/000000.png" : thumbnailUrl)} alt="thumbnail-prev" loading="lazy"/>
                                     <button onClick={() => thumbnailInputRef.current.click()}>Upload Thumbnail</button>
                                     <input
                                         type="file"

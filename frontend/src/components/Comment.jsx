@@ -98,7 +98,7 @@ function Comment({ comment, videoId, setVideo }) {
 
     return (
         <div className="comment-block">
-            <img src={avatar} alt="user-avatar" />
+            <img src={avatar} alt="user-avatar" loading="lazy"/>
             <div className="comment-details">
                 <div className="comment-user-details">
                     <p className="comment-username">@{username}</p>
@@ -125,7 +125,7 @@ function Comment({ comment, videoId, setVideo }) {
                 </div>
             </div>
             <span className="comment-three-dots" onClick={() => setShowCommentOption(!showCommenOption)}>
-                <img src="https://img.icons8.com/?size=100&id=84119&format=png&color=FFFFFF" alt="comment-options" />
+                <img src="https://img.icons8.com/?size=100&id=84119&format=png&color=FFFFFF" alt="comment-options" loading="lazy"/>
             </span>
             <div className="comment-options" style={{ display: showCommenOption ? "flex" : "none" }}>
                 {comment?.user?._id === user?._id ?
@@ -135,16 +135,16 @@ function Comment({ comment, videoId, setVideo }) {
                             setShowCommentOption(!showCommenOption)
                             setEditedComment(comment.comment)
                         }}>
-                            <img src="https://img.icons8.com/?size=100&id=15069&format=png&color=FFFFFF" alt="edit-icon" />
+                            <img src="https://img.icons8.com/?size=100&id=15069&format=png&color=FFFFFF" alt="edit-icon" loading="lazy"/>
                             <span>Edit</span>
                         </div>
                         <div className="comment-option delete" onClick={handleDeleteComment}>
-                            <img src="https://img.icons8.com/?size=100&id=83238&format=png&color=FFFFFF" alt="delete" />
+                            <img src="https://img.icons8.com/?size=100&id=83238&format=png&color=FFFFFF" alt="delete" loading="lazy"/>
                             <span>Delete</span>
                         </div>
                     </> :
                     <div className="comment-option report">
-                        <img src="https://img.icons8.com/?size=100&id=CAiO991xKc-Y&format=png&color=FFFFFF" alt="report" />
+                        <img src="https://img.icons8.com/?size=100&id=CAiO991xKc-Y&format=png&color=FFFFFF" alt="report" loading="lazy"/>
                         <span>Report</span>
                     </div>
                 }

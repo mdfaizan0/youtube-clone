@@ -16,7 +16,7 @@ function MiniVideoTile({ video, page, isOwner, handleVideoEdit, handleVideoDelet
     return (
         <div className={`mini-video-tile ${page === "channel" ? "flex-row" : ""}`}>
             <Link to={`/watch/${video._id}`} className={`mini-video-thumbnail ${page === "channel" ? "channel-hw" : ""}`} >
-                <img src={thumbnailUrl} alt={title} />
+                <img src={thumbnailUrl} alt={title} loading="lazy"/>
                 <span className="duration">{convertStoMs(duration)}</span>
             </Link>
             <div className="mini-video-details" style={{ padding: page === "channel" ? "6px 0" : "6px 10px" }}>
@@ -29,6 +29,7 @@ function MiniVideoTile({ video, page, isOwner, handleVideoEdit, handleVideoDelet
                             className="options-img-tile"
                             style={{ display: isOwner ? "block" : "none" }}
                             onClick={() => setShowVideoEditOption(!showVideoEditOption)}
+                            loading="lazy"
                         />
                     </div>
                     <div className="channel-video-options" style={{ display: showVideoEditOption ? "flex" : "none" }}>
@@ -36,14 +37,14 @@ function MiniVideoTile({ video, page, isOwner, handleVideoEdit, handleVideoDelet
                             setShowVideoEditOption(!showVideoEditOption)
                             handleVideoEdit(video)
                         }}>
-                            <img src="https://img.icons8.com/?size=100&id=15069&format=png&color=FFFFFF" alt="edit-icon" />
+                            <img src="https://img.icons8.com/?size=100&id=15069&format=png&color=FFFFFF" alt="edit-icon" loading="lazy"/>
                             <span>Edit</span>
                         </div>
                         <div className="comment-option delete" onClick={() => {
                             handleVideoDelete(video)
                             setShowVideoEditOption(!showVideoEditOption)
                         }}>
-                            <img src="https://img.icons8.com/?size=100&id=83238&format=png&color=FFFFFF" alt="delete-icon" />
+                            <img src="https://img.icons8.com/?size=100&id=83238&format=png&color=FFFFFF" alt="delete-icon" loading="lazy"/>
                             <span>Delete</span>
                         </div>
                     </div>

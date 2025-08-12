@@ -44,10 +44,10 @@ function Header() {
             <div className="header-container">
                 <div className="logo-container">
                     <div className="guide-toggle" onClick={() => setShowGuide(!showGuide)}>
-                        <img src="https://img.icons8.com/?size=100&id=36389&format=png&color=FFFFFF" alt="ham-menu" />
+                        <img src="https://img.icons8.com/?size=100&id=36389&format=png&color=FFFFFF" alt="ham-menu" loading="lazy"/>
                     </div>
                     <div className="main-logo">
-                        <Link to="/"><img src="https://i.ibb.co/dJgvjSzY/yt-logo-fullcolor-white-digital.png" alt="main-logo" className="yt-main-logo" /></Link>
+                        <Link to="/"><img src="https://i.ibb.co/dJgvjSzY/yt-logo-fullcolor-white-digital.png" alt="main-logo" className="yt-main-logo" loading="lazy"/></Link>
                     </div>
                 </div>
                 {showGuide && <Sidebar />}
@@ -55,7 +55,7 @@ function Header() {
                     <Search />
                 </div>
                 <div className="search-mobile-icon" onClick={() => setShowMobileSearch(true)}>
-                    <img src="https://img.icons8.com/?size=100&id=7695&format=png&color=FFFFFF" alt="search" />
+                    <img src="https://img.icons8.com/?size=100&id=7695&format=png&color=FFFFFF" alt="search" loading="lazy"/>
                 </div>
                 {showMobileSearch && (
                     <div className="mobile-search-overlay">
@@ -65,31 +65,31 @@ function Header() {
                         </button>
                     </div>)}
                 <div className="create-group" onClick={() => setShowCreate(!showCreate)} style={{ display: isLoggedIn && user?.channels?.length > 0 ? "flex" : "none" }}>
-                    <img src="https://img.icons8.com/?size=100&id=11153&format=png&color=FFFFFF" alt="create" />
+                    <img src="https://img.icons8.com/?size=100&id=11153&format=png&color=FFFFFF" alt="create" loading="lazy"/>
                     <span>Create</span>
                     <div className="create-options" style={{ display: showCreate ? "block" : "none" }}>
                         <div className="upload-video option" onClick={() => navigate("/channel/manage?upload=true")}>
-                            <img src="https://img.icons8.com/?size=100&id=111348&format=png&color=FFFFFF" alt="upload-video" />
+                            <img src="https://img.icons8.com/?size=100&id=111348&format=png&color=FFFFFF" alt="upload-video" loading="lazy"/>
                             <span>Upload Video</span>
                         </div>
                         <div className="go-live option">
-                            <img src="https://img.icons8.com/?size=100&id=ye3pWzAxNYw3&format=png&color=FFFFFF" alt="go-live" />
+                            <img src="https://img.icons8.com/?size=100&id=ye3pWzAxNYw3&format=png&color=FFFFFF" alt="go-live" loading="lazy"/>
                             <span>Go Live</span>
                         </div>
                         <div className="create-post option">
-                            <img src="https://img.icons8.com/?size=100&id=Isc1rCN9qu0y&format=png&color=FFFFFF" alt="create-post" />
+                            <img src="https://img.icons8.com/?size=100&id=Isc1rCN9qu0y&format=png&color=FFFFFF" alt="create-post" loading="lazy"/>
                             <span>Create Post</span>
                         </div>
                     </div>
                 </div>
                 <div className="header-sign-in">
-                    {isLoggedIn ? <img src={user?.avatar} alt="avatar" className="header-avatar" onClick={() => setShowProfile(!showProfile)} /> : <Link to="/login" className="signin-btn">
-                        <img src="https://img.icons8.com/?size=100&id=23400&format=png&color=FFFFFF" alt="person" />
+                    {isLoggedIn ? <img src={user?.avatar} alt="avatar" className="header-avatar" onClick={() => setShowProfile(!showProfile)} loading="lazy"/> : <Link to="/login" className="signin-btn">
+                        <img src="https://img.icons8.com/?size=100&id=23400&format=png&color=FFFFFF" alt="person" loading="lazy"/>
                         <p>Sign in</p>
                     </Link>}
                     <div className="user-profile" style={{ display: showProfile ? "flex" : "none" }}>
                         <div className="profile">
-                            <img src={user?.avatar} alt="avatar" className="header-avatar" />
+                            <img src={user?.avatar} alt="avatar" className="header-avatar" loading="lazy"/>
                             <div className="user-details">
                                 <span>{user?.name}</span>
                                 <span>{user?.username}</span>

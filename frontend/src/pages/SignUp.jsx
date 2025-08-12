@@ -137,6 +137,7 @@ function SignUp() {
                         src={avatarUrl ? avatarUrl : "https://img.icons8.com/?size=100&id=7819&format=png&color=FFFFFF"}
                         alt="avatar preview"
                         className="avatar-preview"
+                        loading="lazy"
                     />
                     <button type="button" onClick={handleUploadAvatar}>
                         {avatarUrl ? "Change Avatar" : "Upload Avatar"}
