@@ -73,11 +73,11 @@ function PublicChannel() {
         ) : (
             <div className="channel-page">
                 <div className="channel-banner">
-                    <img src={channel.channelBanner} alt="channelBanner" />
+                    <img src={channel.channelBanner} alt="channelBanner" loading="lazy"/>
                 </div>
                 <div className="channel-profile">
                     <div className="channel-avatar">
-                        <img src={channel.channelAvatar} alt="channelAvatar" />
+                        <img src={channel.channelAvatar} alt="channelAvatar" loading="lazy"/>
                     </div>
                     <div className="profile-info">
                         <div className="channel-name-container">
@@ -111,7 +111,7 @@ function PublicChannel() {
                             <button onClick={token !== null ? handleSubscribe : () => setShowActionSignin(!showActionSignin)} >
                                 {isSubscribed ? (
                                     <>
-                                        <img src="https://img.icons8.com/?size=100&id=M0zWhR81xxgX&format=png&color=000000" alt="subscribed-icon" />
+                                        <img src="https://img.icons8.com/?size=100&id=M0zWhR81xxgX&format=png&color=000000" alt="subscribed-icon" loading="lazy"/>
                                         Subscribed
                                     </>
                                 ) : (
@@ -134,7 +134,7 @@ function PublicChannel() {
                                 return <MiniVideoTile video={video} key={video._id} page="channel" />
                             }) :
                             <div className="no-videos-cta">
-                                <img src="https://www.gstatic.com/youtube/img/channels/core_channel_no_activity_dark.svg" alt="no-videos-cta" style={{ width: "250px" }} />
+                                <img src="https://www.gstatic.com/youtube/img/channels/core_channel_no_activity_dark.svg" alt="no-videos-cta" style={{ width: "250px" }} loading="lazy"/>
                                 <strong>This channel doesn't have any content</strong>
                             </div>
                     }

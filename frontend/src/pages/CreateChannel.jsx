@@ -155,7 +155,7 @@ function CreateChannel() {
         <>
             {isSubmitting ? <div className="loading-container"><div className="loading-msg"></div></div> :
                 <div className="create-channel-page">
-                    <img src="https://img.freepik.com/free-vector/diverse-people-hello-welcome-gesture-multinational-characters-waving-hands-happy-young-man-senior-lady-arab-girl-lgbt-person-positive-greeting-gesturing-line-art-flat-vector-illustration_107791-10896.jpg?t=st=1754602348~exp=1754605948~hmac=e293064757ea4595b12328326c1e570b62b97de2ee52fbf2fe0e9ba7919310ba&w=1480" alt="vector" />
+                    <img src="https://img.freepik.com/free-vector/diverse-people-hello-welcome-gesture-multinational-characters-waving-hands-happy-young-man-senior-lady-arab-girl-lgbt-person-positive-greeting-gesturing-line-art-flat-vector-illustration_107791-10896.jpg?t=st=1754602348~exp=1754605948~hmac=e293064757ea4595b12328326c1e570b62b97de2ee52fbf2fe0e9ba7919310ba&w=1480" alt="vector" loading="lazy"/>
                     <div className="create-channel-form">
                         <h1>Create a new channel</h1>
                         <form onSubmit={handleSubmit(onSubmit)}>
@@ -165,6 +165,7 @@ function CreateChannel() {
                                     alt="Channel Avatar"
                                     className="channel-avatar-preview"
                                     style={{ width: "80px", height: "80px", borderRadius: "50%", objectFit: "cover", marginTop: "10px" }}
+                                    loading="lazy"
                                 />
                                 <button type="button" onClick={handleUploadChannelAvatar}>
                                     {channelAvatarURL ? "Change Channel Avatar" : "Upload Channel Avatar"}
@@ -198,7 +199,7 @@ function CreateChannel() {
                                             setBannerPreview(URL.createObjectURL(file));
                                         }
                                     }} />
-                                {bannerPreview && <img src={bannerPreview} alt="banner-preview" style={{ width: "100%", height: "auto", marginTop: "10px" }} />}
+                                {bannerPreview && <img src={bannerPreview} alt="banner-preview" style={{ width: "100%", height: "auto", marginTop: "10px" }} loading="lazy"/>}
                             </div>
                             <button type="submit" disabled={isSubmitting} className="channel-create-btn">
                                 Create Channel

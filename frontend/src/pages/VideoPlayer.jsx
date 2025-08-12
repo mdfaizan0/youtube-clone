@@ -193,7 +193,7 @@ function VideoPlayer() {
                     <h1>{video.title}</h1>
                     <div className="extra-options">
                         <div className="channel-block">
-                            <Link to={`/channel/${video.channel?._id}`}><img className="video-avatar" src={video.channel?.channelAvatar} alt={video.channel?.channelName} /></Link>
+                            <Link to={`/channel/${video.channel?._id}`}><img className="video-avatar" src={video.channel?.channelAvatar} alt={video.channel?.channelName} loading="lazy" /></Link>
                             <div className="channel-meta">
                                 <Link to={`/channel/${video.channel?._id}`} className="channel-name">
                                     <p>{video.channel?.channelName}</p>
@@ -211,7 +211,7 @@ function VideoPlayer() {
                                 <button onClick={token !== null ? handleSubscribe : () => setShowActionSignin(!showActionSignin)} >
                                     {isSubscribed ? (
                                         <>
-                                            <img src="https://img.icons8.com/?size=100&id=M0zWhR81xxgX&format=png&color=000000" alt="subscribed-icon" />
+                                            <img src="https://img.icons8.com/?size=100&id=M0zWhR81xxgX&format=png&color=000000" alt="subscribed-icon" loading="lazy" />
                                             Subscribed
                                         </>
                                     ) : (
@@ -248,24 +248,26 @@ function VideoPlayer() {
                                     <img src={hasDisliked ? "https://img.icons8.com/?size=100&id=87726&format=png&color=FFFFFF" :
                                         "https://img.icons8.com/?size=100&id=87695&format=png&color=FFFFFF"}
                                         style={{ transform: "scaleX(-1)" }}
-                                        alt="dislikes" />
+                                        alt="dislikes"
+                                        loading="lazy"
+                                    />
                                     <span>{video.dislikes}</span>
                                 </div>
                             </div>
                             <button>
-                                <img src="https://img.icons8.com/?size=100&id=K6OM9OBagzCm&format=png&color=FFFFFF" alt="share" />
+                                <img src="https://img.icons8.com/?size=100&id=K6OM9OBagzCm&format=png&color=FFFFFF" alt="share" loading="lazy"/>
                                 <span>Share</span>
                             </button>
                             <button>
-                                <img src="https://img.icons8.com/?size=100&id=14100&format=png&color=FFFFFF" alt="download" />
+                                <img src="https://img.icons8.com/?size=100&id=14100&format=png&color=FFFFFF" alt="download" loading="lazy"/>
                                 <span>Download</span>
                             </button>
                             <button>
-                                <img src="https://img.icons8.com/?size=100&id=82461&format=png&color=FFFFFF" alt="save" />
+                                <img src="https://img.icons8.com/?size=100&id=82461&format=png&color=FFFFFF" alt="save" loading="lazy"/>
                                 <span>Save</span>
                             </button>
                             <button>
-                                <img src="https://img.icons8.com/?size=100&id=84119&format=png&color=FFFFFF" alt="save" className="options-img" />
+                                <img src="https://img.icons8.com/?size=100&id=84119&format=png&color=FFFFFF" alt="save" className="options-img" loading="lazy"/>
                             </button>
                         </div>
                     </div>
@@ -284,7 +286,7 @@ function VideoPlayer() {
                         <div className="comments-head">
                             <h3>{video?.comments?.length} Comments</h3>
                             <div className="comment-cta">
-                                <img src={token ? user.avatar : "https://yt3.ggpht.com/a/default-user=s48-c-k-c0x00ffffff-no-rj"} alt="default-avatar" />
+                                <img src={token ? user.avatar : "https://yt3.ggpht.com/a/default-user=s48-c-k-c0x00ffffff-no-rj"} alt="default-avatar" loading="lazy"/>
                                 {token ?
                                     <div className="add-comment">
                                         <input type="text"

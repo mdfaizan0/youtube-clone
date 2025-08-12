@@ -49,7 +49,7 @@ function SearchResults() {
                     return (
                         <div className="search-tile" key={video._id}>
                             <div className="search-tile-img">
-                                <img src={video.thumbnailUrl} alt="thumbnail" />
+                                <img src={video.thumbnailUrl} alt="thumbnail" loading="lazy"/>
                                 <span className="duration">{convertStoMs(video.duration)}</span>
                             </div>
                             <div className="search-tile-details">
@@ -63,7 +63,7 @@ function SearchResults() {
                                         <small>{formatDistanceToNow(video.createdAt)}</small>
                                     </div>
                                     <div className="search-tile-channel">
-                                        <Link to={`/channel/${video.channel._id}`}><img src={video.channel.channelAvatar} alt="channel-avatar" /></Link>
+                                        <Link to={`/channel/${video.channel._id}`}><img src={video.channel.channelAvatar} alt="channel-avatar" loading="lazy"/></Link>
                                         <Link to={`/channel/${video.channel._id}`}><small>{video.channel.channelName}</small></Link>
                                         <img src="https://img.icons8.com/?size=100&id=36872&format=png&color=FFFFFF" alt="verified-status" title="Verified" style={video.channel.verified ? { display: "block" } : { display: "none" }} loading="lazy" />
                                     </div>
@@ -74,7 +74,7 @@ function SearchResults() {
                     )
                 }) :
                     <div className="no-result-container">
-                        <img src="https://i.ibb.co/rRJyzDCk/svgviewer-png-output-1.png" alt="no-result-blob" />
+                        <img src="https://i.ibb.co/rRJyzDCk/svgviewer-png-output-1.png" alt="no-result-blob" loading="lazy"/>
                         <p>{message || "No results found"}</p>
                         <small>Try different keywords</small>
                     </div>}

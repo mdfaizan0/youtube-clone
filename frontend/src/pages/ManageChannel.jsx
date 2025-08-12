@@ -355,12 +355,13 @@ function ManageChannel() {
     ) : (
       <div className="channel-page" style={{ pointerEvents: isVideoEditOpen ? "none" : "auto", userSelect: isVideoEditOpen ? "none" : "auto" }}>
         <div className="channel-banner">
-          <img src={bannerPreview ? bannerPreview : channel.channelBanner} alt="channelBanner" />
+          <img src={bannerPreview ? bannerPreview : channel.channelBanner} alt="channelBanner" loading="lazy"/>
           <img
             src="https://img.icons8.com/?size=100&id=7EmcfPM09Gkp&format=png&color=FFFFFF"
             alt="edit-icon"
             onClick={() => bannerInputRef.current.click()}
             style={{ display: chanEditMode ? "block" : "none" }}
+            loading="lazy"
           />
           <input
             type="file"
@@ -372,13 +373,14 @@ function ManageChannel() {
         </div>
         <div className="channel-profile">
           <div className="channel-avatar">
-            <img src={updatedChanAvaURL ? updatedChanAvaURL : channel.channelAvatar} alt="channelAvatar" />
+            <img src={updatedChanAvaURL ? updatedChanAvaURL : channel.channelAvatar} alt="channelAvatar" loading="lazy"/>
             <div style={{ display: chanEditMode ? "flex" : "none" }}>
               <img
                 src="https://img.icons8.com/?size=100&id=7EmcfPM09Gkp&format=png&color=FFFFFF"
                 alt="edit"
                 className="avatar-edit"
                 onClick={handleUpdateChannelAvatar}
+                loading="lazy"
               />
             </div>
           </div>
@@ -406,6 +408,7 @@ function ManageChannel() {
                 className="edit-btn"
                 style={{ display: chanEditMode ? "block" : "none" }}
                 onClick={() => setEditingChanName(!editingChanName)}
+                loading="lazy"
               />
             </div>
             <div className="profile-meta">
@@ -439,6 +442,7 @@ function ManageChannel() {
                 className="edit-btn"
                 style={{ display: chanEditMode ? "block" : "none" }}
                 onClick={() => setEditingChanDesc(!editingChanDesc)}
+                loading="lazy"
               />
             </div>
             <div className="manage-channel-actions">
@@ -473,7 +477,7 @@ function ManageChannel() {
                 return <MiniVideoTile video={video} key={video._id} page="channel" isOwner={true} handleVideoEdit={handleVideoEdit} handleVideoDelete={handleVideoDelete} />
               }) :
               <div className="no-videos-cta">
-                <img src="https://www.gstatic.com/youtube/img/channels/core_channel_no_activity_dark.svg" alt="no-videos-cta" />
+                <img src="https://www.gstatic.com/youtube/img/channels/core_channel_no_activity_dark.svg" alt="no-videos-cta" loading="lazy"/>
                 <strong>Create content on any device</strong>
                 <span>Upload and record at home or on the go. <br />Everything you make public will appear here.</span>
                 <button onClick={() => navigate("/channel/manage?upload=true")}>Upload Video</button>

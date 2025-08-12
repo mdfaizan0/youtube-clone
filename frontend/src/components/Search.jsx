@@ -18,6 +18,7 @@ function Search() {
           <img
             src="https://img.icons8.com/?size=100&id=7695&format=png&color=FFFFFF"
             alt="search-icon"
+            loading="lazy"
           />
         </button>
       </form>

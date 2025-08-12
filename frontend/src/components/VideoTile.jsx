@@ -11,11 +11,11 @@ function VideoTile({ video }) {
     return (
         <div className="video-tile">
             <Link to={`/watch/${video._id}`} className="video-thumbnail">
-                <img src={thumbnailUrl} alt={title} ></img>
+                <img src={thumbnailUrl} alt={title} loading="lazy"/>
                 <span className="duration">{convertStoMs(duration)}</span>
             </Link>
             <div className="video-details">
-                <Link to={`/channel/${_id}`}><img className="video-avatar" src={channelAvatar} alt={channelName} /></Link>
+                <Link to={`/channel/${_id}`}><img className="video-avatar" src={channelAvatar} alt={channelName} loading="lazy"/></Link>
                 <div className="video-info">
                     <Link to={`/watch/${video._id}`}><h2 className="video-title">{title}</h2></Link>
                     <div className="video-channel-details">
