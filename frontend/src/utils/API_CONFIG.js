@@ -1,5 +1,7 @@
+// getting API URL from .env
 const API = import.meta.env.VITE_API_URL
 
+// setting endpoints for ease of access
 const API_ENDPOINTS = {
     CHANNEL_CREATE: `${API}/api/channel/create`,
     USER_CHANNEL_UPDATE: `${API}/api/channel/me`,
@@ -17,6 +19,7 @@ const API_ENDPOINTS = {
     SUB_CHANNEL: `${API}/api/channel/subscribe`, // need channelId to subscribe
 }
 
+// exporting each endpoints specifically to import them easily when needed
 export const {
     CHANNEL_CREATE,
     USER_CHANNEL_UPDATE,

@@ -3,21 +3,25 @@ import Channel from "../models/Channel.model.js"
 import Video from "../models/Video.model.js"
 import { cloudinary } from "../config/cloudinary.js"
 
+// // controller to handle channel creation with default avatar and banner
 export async function createChannel(req, res) {
     const { channelName, channelAvatar, channelDescription } = req.body
     const owner = req.user._id
     let channelBanner = null
     let channelBannerPublicId = null
 
+    // checking if banner came with response
     if (req.file) {
         channelBanner = req.file.path
         channelBannerPublicId = req.file.filename
     }
 
+    // checking only if channel name is in response, else everything can be default
     if (!channelName) {
         return res.status(400).json({ message: "Channel Name is required" })
     }
 
+    // checking if user has a channel, if yes, return 409 and then after adding to db, sending the response
     try {
         const channelExist = await Channel.findOne({ owner })
         if (channelExist) {
@@ -44,6 +48,7 @@ export async function createChannel(req, res) {
     }
 }
 
+// controller to handle finding a channel by ID and sending them for public view
 export async function getChannelById(req, res) {
     const { channelId } = req.params
 
@@ -58,6 +63,7 @@ export async function getChannelById(req, res) {
     }
 }
 
+// controller to handle finding a channel by ID and sending them for manage view
 export async function getMyChannel(req, res) {
     const owner = req.user._id
 
@@ -70,21 +76,27 @@ export async function getMyChannel(req, res) {
     }
 }
 
+// controller to handle updating details of a channel
 export async function updateChannel(req, res) {
     const { channelName, channelAvatar, channelDescription } = req.body
     const owner = req.user._id
     const channelBanner = req?.file?.path
 
+    // checking if anyone of them is received, if not, send bad response
     if (!channelName && !channelAvatar && !channelDescription && !channelBanner) {
         return res.status(400).json({ message: "Atleast one of the fields among Channel Name, Channel Avatar, Channel Description or Channel Banner is required" })
     }
 
+    // initializing updates object
     let updates = {}
+    // finding if channel exist, if not, 404
     try {
         const channelExist = await Channel.findOne({ owner })
         if (!channelExist) {
             return res.status(404).json({ message: "Not found the channel to update", notFound: true })
         }
+        
+        // checking if channel banner came thru, if yes, remove the old one from cloudinary and then upload the new file and its public ID to cloud
         if (req.file) {
             if (channelExist.channelBannerPublicId) {
                 await cloudinary.uploader.destroy(channelExist.channelBannerPublicId)
@@ -93,10 +105,12 @@ export async function updateChannel(req, res) {
             updates.channelBannerPublicId = req.file.filename
         }
 
+        // adding rest of the details of updates obj, if they exist
         if (channelName) updates.channelName = channelName
         if (channelAvatar) updates.channelAvatar = channelAvatar
         if (channelDescription) updates.channelDescription = channelDescription
 
+        // sending update to DB, checking if channel exist (again for safety) and then the response with updated channel details
         const channel = await Channel.findOneAndUpdate({ owner }, updates, { new: true })
         if (!channel) return res.status(404).json({ message: "Unable to update details as channel not found", notFound: true })
         return res.status(200).json({ message: `Channel with ID: ${channel._id} is updated.`, updatedDetails: await Channel.findOne({ owner }).populate("owner", "username avatar").populate("videos") })
@@ -105,6 +119,7 @@ export async function updateChannel(req, res) {
     }
 }
 
+// controller to handle removing a channel after auth and necessary checks and removing the banner from db too
 export async function deleteChannel(req, res) {
     const userId = req.user._id
 
@@ -122,10 +137,13 @@ export async function deleteChannel(req, res) {
             await cloudinary.uploader.destroy(channel.channelBannerPublicId)
         }
 
+        // removing channel ref from channels array from User model
         if (user?.channels) {
             user.channels = user.channels.filter(chan => chan.toString() !== channel._id.toString())
             await user.save()
         }
+
+        // handling deletion of the videos, followed by the channel and then sending a custom response
         const videos = await Video.deleteMany({ channel: channel._id })
         await Channel.deleteOne(channel._id)
         return res.status(200).json(
@@ -135,16 +153,20 @@ export async function deleteChannel(req, res) {
     }
 }
 
+// controller to handle subscriber toggle in sync with DB after auth based on action property received from FE
 export async function toggleSubscriber(req, res) {
     const { action } = req.body
     const userId = req.user._id
     const { channelId } = req.params
 
     try {
+        // checking if channel exist
         const channel = await Channel.findById(channelId)
         if (!channel) {
             return res.status(404).json({ message: "Channel not found" })
         }
+
+        // checking if action is increase, if yes, checking if the channel has the user as sub, if yes, cannot subscribe again, else, add the user to sub array in Channel model
         if (action === "inc") {
             if (channel.subscribers.some(id => id.equals(userId))) {
                 return res.status(400).json({ message: "Already subscribed, cannot subscribe again" })
@@ -152,7 +174,8 @@ export async function toggleSubscriber(req, res) {
             channel.subscribers.push(userId)
             channel.subscriberCount += 1
         }
-
+        
+        // checking if action is decrease, if yes, checking if the channel has the user as sub, if yes, add the user to sub array in Channel model, else, cannot subscribe again
         if (action === "dec") {
             if (channel.subscribers.some(id => id.equals(userId))) {
                 channel.subscribers = channel.subscribers.filter(sub => !sub.equals(userId))

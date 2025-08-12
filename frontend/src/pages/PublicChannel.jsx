@@ -1,12 +1,15 @@
 import { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { GET_CHANNEL, PLAY_VIDEO, SUB_CHANNEL } from '../utils/API_CONFIG'
+import { GET_CHANNEL, SUB_CHANNEL } from '../utils/API_CONFIG'
 import { useState } from 'react'
 import MiniVideoTile from '../components/MiniVideoTile'
 import { useSelector } from 'react-redux'
 import toast from 'react-hot-toast'
 
 function PublicChannel() {
+    // a replica of ManageChannel, but without any editing chaos, 
+    // just showing the details received from BE
+    // just difference is that handling subscribing and showing action sign in box same as VideoPlayer
     const { channelId } = useParams()
     const [channel, setChannel] = useState(null)
     const [videos, setVideos] = useState(null)
@@ -16,6 +19,7 @@ function PublicChannel() {
     const user = useSelector(state => state.user.user)
     const token = useSelector(state => state.user.token)
 
+    // getting channel details from BE
     useEffect(() => {
         setLoading(true)
         async function fetchChannel() {
@@ -33,6 +37,7 @@ function PublicChannel() {
         fetchChannel()
     }, [])
 
+    // handling subscribing by sending relevant action based on alreadySubscribed
     async function handleSubscribe() {
         try {
             const alreadySubscribed = channel?.subscribers?.includes(user?._id)
@@ -46,6 +51,7 @@ function PublicChannel() {
                 body: JSON.stringify({ action })
             })
 
+            // getting updated video details from BE and setting it to show updated video details on UI
             const updatedVideoRes = await fetch(`${GET_CHANNEL}/${channel._id}`);
             const updatedData = await updatedVideoRes.json();
             setChannel(updatedData.channel);
@@ -76,7 +82,7 @@ function PublicChannel() {
                     <div className="profile-info">
                         <div className="channel-name-container">
                             <div className="channel-name-block">
-                                <h1>{channel.channelName}</h1>
+                                <span>{channel.channelName}</span>
                                 <img
                                     src="https://img.icons8.com/?size=100&id=36872&format=png&color=FFFFFF"
                                     alt="verified-status"
@@ -86,13 +92,17 @@ function PublicChannel() {
                             </div>
                         </div>
                         <div className="profile-meta">
-                            <strong>@{channel.owner.username}</strong>
-                            <span>•</span>
-                            <span>{channel.subscriberCount} subscriber{channel.subscriberCount > 1 ? "s" : ""}</span>
-                            <span>•</span>
-                            <span>{channel.videos.length} video{channel.videos.length > 1 ? "s" : ""}</span>
-                            <span>•</span>
-                            <span>created {new Date(channel.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                            <div className="profile-username">
+                                <strong>@{channel.owner.username}</strong>
+                            </div>
+                            <div className="profile-information">
+                                <span>•</span>
+                                <span>{channel.subscriberCount} subscriber{channel.subscriberCount > 1 ? "s" : ""}</span>
+                                <span>•</span>
+                                <span>{channel.videos.length} video{channel.videos.length > 1 ? "s" : ""}</span>
+                                <span>•</span>
+                                <span>created {new Date(channel.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                            </div>
                         </div>
                         <div className="channel-descrip-block">
                             <p>{channel.channelDescription}</p>

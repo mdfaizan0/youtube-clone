@@ -6,24 +6,28 @@ import { useDispatch, useSelector } from "react-redux"
 import toast from "react-hot-toast"
 
 function Login() {
+    // setting states, getting rrd hooks and getting token state from redux
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const token = useSelector(state => state.user.token)
 
+    // if token is there, navigate to home
     if (token) {
         return <Navigate to="/"></Navigate>
     }
 
+    // handling login form submission
     async function handleLogin(e) {
         e.preventDefault()
 
+        // checking if both fields are filled
         if (!email || !password) {
             toast("Please fill all fields.")
             return
         }
-
+        // if yes, sending data to BE
         try {
             const res = await fetch("http://localhost:5000/api/auth/signin", {
                 method: "POST",
@@ -37,7 +41,7 @@ function Login() {
                 toast.error(data?.message || "Login failed");
                 return;
             }
-
+            // if response is 200, setting user details to user state and token to user/token states and routing to home with a custom toast
             if (res.status === 200) {
                 dispatch(setUser(data.user))
                 dispatch(setToken(data.token))

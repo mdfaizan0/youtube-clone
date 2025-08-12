@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// channel schema with avatar and banner's default value
 const channelSchema = mongoose.Schema({
     channelName: {
         type: String,
@@ -43,6 +44,7 @@ const channelSchema = mongoose.Schema({
     }
 }, { timestamps: true })
 
+// making model and exporting
 const Channel = mongoose.model("Channel", channelSchema)
 
 export default Channel

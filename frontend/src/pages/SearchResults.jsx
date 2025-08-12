@@ -5,16 +5,20 @@ import { SEARCH } from "../utils/API_CONFIG"
 import { convertStoMs, formatViews } from "../utils/videoUtils"
 
 function SearchResults() {
+    // setting states for loading, resultvideos and message to show error
     const [resultVideos, setResultVideos] = useState(null)
     const [loading, setLoading] = useState(true)
     const [message, setMessage] = useState("")
     const [searchParams] = useSearchParams()
     const query = searchParams.get("q")?.trim()
     useEffect(() => {
+        // if there is no query, dont show loading screen
         if (!query) {
             setLoading(false)
             return
         }
+
+        // calling backend with proper endpoints and actual query, setting result videos and setting message as empty string
         async function fetchSearch() {
             try {
                 setLoading(true)
@@ -49,16 +53,20 @@ function SearchResults() {
                                 <span className="duration">{convertStoMs(video.duration)}</span>
                             </div>
                             <div className="search-tile-details">
-                                <p>{video.title}</p>
-                                <div className="search-tile-meta">
-                                    <small>{formatViews(video.views)}</small>
-                                    <small>•</small>
-                                    <small>{formatDistanceToNow(video.createdAt)}</small>
+                                <div className="search-tile-title">
+                                    <p>{video.title}</p>
                                 </div>
-                                <div className="search-tile-channel">
-                                    <Link to={`/channel/${video.channel._id}`}><img src={video.channel.channelAvatar} alt="channel-avatar" /></Link>
-                                    <Link to={`/channel/${video.channel._id}`}><small>{video.channel.channelName}</small></Link>
-                                    <img src="https://img.icons8.com/?size=100&id=36872&format=png&color=FFFFFF" alt="verified-status" title="Verified" style={video.channel.verified ? { display: "block" } : { display: "none" }} loading="lazy" />
+                                <div className="search-tile-channel-meta">
+                                    <div className="search-tile-meta">
+                                        <small>{formatViews(video.views)}</small>
+                                        <small>•</small>
+                                        <small>{formatDistanceToNow(video.createdAt)}</small>
+                                    </div>
+                                    <div className="search-tile-channel">
+                                        <Link to={`/channel/${video.channel._id}`}><img src={video.channel.channelAvatar} alt="channel-avatar" /></Link>
+                                        <Link to={`/channel/${video.channel._id}`}><small>{video.channel.channelName}</small></Link>
+                                        <img src="https://img.icons8.com/?size=100&id=36872&format=png&color=FFFFFF" alt="verified-status" title="Verified" style={video.channel.verified ? { display: "block" } : { display: "none" }} loading="lazy" />
+                                    </div>
                                 </div>
                                 <small>{video.description}</small>
                             </div>

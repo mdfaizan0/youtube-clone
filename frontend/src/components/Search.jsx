@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function Search() {
+  // query state and naviagte from rrd
   const [query, setQuery] = useState("");
   const navigate = useNavigate()
   return (
@@ -24,4 +25,4 @@ function Search() {
   );
 }
 
-export default Search;
+export default Search

@@ -5,6 +5,7 @@ import { useSelector } from "react-redux"
 import toast from "react-hot-toast"
 
 function SignUp() {
+    // declaring necessary states
     const [name, setName] = useState("")
     const [username, setUsername] = useState("")
     const [email, setEmail] = useState("")
@@ -14,13 +15,16 @@ function SignUp() {
     const [emailError, setEmailError] = useState("");
     const [passwordError, setPasswordError] = useState("");
 
+    // getting rrd navigate and token state from redux
     const navigate = useNavigate()
     const token = useSelector(state => state.user.token)
 
+    // if token exist, nav to home
     if (token) {
         return <Navigate to="/"></Navigate>
     }
 
+    // handling cloudinary upload widget for user avatar configuring and calling it
     function handleUploadAvatar() {
         const widget = window.cloudinary.createUploadWidget({
             cloudName: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME,
@@ -75,19 +79,23 @@ function SignUp() {
         }
     }
 
+    // handling signup
     async function handleSignUp(e) {
         e.preventDefault()
         setEmailError("");
         setPasswordError("");
 
+        // email and password regex
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$/;
 
+        // checking if al fields are filled
         if (!name || !email || !password || !username) {
             toast("Please fill all fields")
             return
         }
 
+        // checking validity of email and password thru regex
         if (!emailRegex.test(email)) {
             setEmailError("Please enter a valid email address.");
             return;
@@ -98,6 +106,7 @@ function SignUp() {
             return;
         }
 
+        // sending post request to BE with user details
         try {
             const res = await fetch("http://localhost:5000/api/auth/signup", {
                 method: "POST",

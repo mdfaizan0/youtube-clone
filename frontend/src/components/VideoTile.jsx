@@ -4,6 +4,7 @@ import { convertStoMs, formatViews } from "../utils/videoUtils"
 import { Link } from "react-router-dom"
 
 function VideoTile({ video }) {
+    // getting relevant details destructured from the video prop
     const { title, views, createdAt, thumbnailUrl, duration } = video
     const { channelName, verified, channelAvatar, _id } = video.channel
 
@@ -23,6 +24,7 @@ function VideoTile({ video }) {
                     </div>
                     <div className="video-meta">
                         <span>{formatViews(views)}</span>
+                        {/* using formatDistanceToNow from "date-fns" to convert date string to about 2 mins ago, about 18 hours ago*/}
                         <span className="video-upload-time">{formatDistanceToNow(new Date(createdAt), { addSuffix: true })}</span>
                     </div>
                 </div>

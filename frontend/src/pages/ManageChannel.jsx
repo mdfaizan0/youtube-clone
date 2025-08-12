@@ -13,6 +13,7 @@ const MAX_BANNER_SIZE = 5 * 1024 * 1024;
 const MAX_BANNER_SIZE_MB = Math.round(MAX_BANNER_SIZE / 1000000);
 
 function ManageChannel() {
+  // setting utility states
   const [channel, setChannel] = useState(null)
   const [videos, setVideos] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -24,24 +25,29 @@ function ManageChannel() {
   const [selectedVideo, setSelectedVideo] = useState(null)
   const [isNewVideo, setIsNewVideo] = useState(false)
 
+  // states for updated channel details
   const [updatedChanAvaURL, setUpdatedChanAvaURL] = useState(null)
   const [updatedChanBan, setUpdatedChanBan] = useState(null)
   const [updatedChanName, setUpdatedChanName] = useState("")
   const [updatedChanDesc, setUpdatedChanDesc] = useState("")
 
+  // bannerInputRef - setting a reference point of thumbnail using useRef and getting token
   const bannerInputRef = useRef()
   const token = useSelector(state => state?.user?.token)
-  const { channelId } = useParams()
+  // setting rrd hooks, confirm from "matrial-ui-confirm" and searchParams from rrd to check if it is "?upload=true" to cater uploading videos
   const navigate = useNavigate()
   const confirm = useConfirm()
   const dispatch = useDispatch()
   const [searchParams] = useSearchParams()
 
+  // setting existing name and description while editing channel details
   useEffect(() => {
     setUpdatedChanDesc(channel?.channelDescription || "")
     setUpdatedChanName(channel?.channelName || "")
   }, [channel])
 
+  // checking if search params is true, 
+  // if yes, open the modal with no previous details na toggle isNewVideo to send updated boolean value VideoEdit.jsx, to act accordingly
   useEffect(() => {
     if (searchParams.get("upload") === "true") {
       setIsVideoEditOpen(true)
@@ -50,6 +56,7 @@ function ManageChannel() {
     }
   }, [searchParams])
 
+  // protecting route when user is not logged in
   useEffect(() => {
     if (!token) {
       toast.error("Looks like you are not signed in");
@@ -58,11 +65,13 @@ function ManageChannel() {
     }
   }, [token]);
 
+  // handling video editing by opening the modal and setting state of received selected video 
   function handleVideoEdit(videoData) {
     setIsVideoEditOpen(true)
     setSelectedVideo(videoData)
   }
 
+  // handling video deletion after getting confirmation using "material-ui-confirm"
   async function handleVideoDelete(video) {
     try {
       const { confirmed } = await confirm({
@@ -72,6 +81,7 @@ function ManageChannel() {
         cancellationText: "Cancel"
       })
       setLoading(true)
+      // if confirmed, sending delete request to BE with relevant params and token
       if (confirmed) {
         const res = await fetch(`${USER_UPDATE_VIDEO}/${channel._id}/${video._id}`, {
           method: "DELETE",
@@ -80,6 +90,7 @@ function ManageChannel() {
           }
         })
         const data = await res.json()
+        // if result is 200, show toast, set updated channel and set all the videos too, to update the removed video from UI
         if (res.status === 200) {
           toast.success(data.message)
           setChannel(data.channel)
@@ -96,6 +107,7 @@ function ManageChannel() {
     }
   }
 
+  // handling channel deletion once confirmed
   async function handleDeleteChannel() {
     try {
       const { confirmed } = await confirm({
@@ -104,8 +116,12 @@ function ManageChannel() {
         confirmationText: "Delete",
         cancellationText: "Cancel"
       })
+      // if not confirmed, get out of the func
       if (!confirmed) return;
-
+      
+      // if confirmed, calling toast.promise and self-executing the function to call backend for channel deletion 
+      // while it shows a loading spinner 
+      // eventually showing completion or error message from BE
       await toast.promise(
         (async () => {
           const res = await fetch(USER_CHANNEL_UPDATE, {
@@ -130,6 +146,7 @@ function ManageChannel() {
         }
       );
 
+      // setting profile data to redux again for updated data to be shown on header
       const result = await getProfile(token);
       if (result.expired) {
         toast.error("Session Expired, please login again")
@@ -142,7 +159,12 @@ function ManageChannel() {
     }
   }
 
+  // handing submission of edited channel details
   async function handleSaveChannel() {
+    // if banner is updated
+    // check format is amongst allowed formats, if not, show toast 
+    // check size is more than max size of 5 mb 
+    // check if all anyone of the details is received
     if (updatedChanBan) {
       const allowed_formats = ["jpg", "jpeg", "png", "webp"]
       const fileName = updatedChanBan.name.split(".")
@@ -163,6 +185,7 @@ function ManageChannel() {
       return
     }
 
+    // showing loading while the data gets processed and checking the data exists before setting to formData
     setLoading(true)
     const formData = new FormData();
     if (updatedChanName) {
@@ -178,6 +201,7 @@ function ManageChannel() {
       formData.append("channelBanner", updatedChanBan)
     }
 
+    // sending data to backend with updated data
     try {
       const res = await fetch(USER_CHANNEL_UPDATE, {
         method: "PUT",
@@ -187,6 +211,7 @@ function ManageChannel() {
         body: formData
       })
       const data = await res.json()
+      // setting updated channel details
       setChannel(data.updatedDetails)
       if (res.status === 200) {
         toast.success(data.message)
@@ -201,6 +226,8 @@ function ManageChannel() {
     }
   }
 
+  // handling banner change to show the selected banner to preview for the user before submitting, 
+  // also, removing previous preview
   function handleBannerChange(e) {
     if (e.target.files[0]) {
       const file = e.target.files[0];
@@ -211,12 +238,14 @@ function ManageChannel() {
     e.target.value = ""
   }
 
+  // handling closeIt, to close the model and setting the route to "/channel/manage" to remove "upload=true"
   function handleModalClose() {
     setIsVideoEditOpen(false)
     navigate("/channel/manage")
     setIsNewVideo(false)
   }
 
+  // handling cloudinary upload widget for channel avatar configuring and calling it
   function handleUpdateChannelAvatar() {
     const widget = window.cloudinary.createUploadWidget({
       cloudName: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME,
@@ -271,11 +300,13 @@ function ManageChannel() {
     }
   }
 
+  // getting newChannel as parameter and setting the updated channel and video details to channel and video states
   function handleAfterSave(newChannel) {
     setChannel(newChannel)
     setVideos(newChannel.videos)
   }
 
+  // fetching user channel everytime the loading state is changed
   useEffect(() => {
     if (!token) return
     async function fetchUserChannel() {
@@ -289,7 +320,7 @@ function ManageChannel() {
           navigate("/404", {
             replace: true,
             state: {
-              from: `/channel/manage/${channelId}`,
+              from: `/channel/manage/`,
               status: res.status,
               messaage: "Channel not found"
             }
@@ -309,6 +340,7 @@ function ManageChannel() {
     fetchUserChannel()
   }, [loading])
 
+  // removing bannerPreview here too for safety and consistency
   useEffect(() => {
     return () => {
       if (bannerPreview) URL.revokeObjectURL(bannerPreview);
@@ -321,7 +353,7 @@ function ManageChannel() {
         <div className="loading-msg"></div>
       </div>
     ) : (
-      <div className="channel-page">
+      <div className="channel-page" style={{ pointerEvents: isVideoEditOpen ? "none" : "auto", userSelect: isVideoEditOpen ? "none" : "auto" }}>
         <div className="channel-banner">
           <img src={bannerPreview ? bannerPreview : channel.channelBanner} alt="channelBanner" />
           <img
@@ -353,7 +385,7 @@ function ManageChannel() {
           <div className="profile-info">
             <div className="channel-name-container">
               <div className="channel-name-block">
-                <h1>{channel.channelName}</h1>
+                <span>{channel.channelName}</span>
                 <img
                   src="https://img.icons8.com/?size=100&id=36872&format=png&color=FFFFFF"
                   alt="verified-status"
@@ -377,13 +409,17 @@ function ManageChannel() {
               />
             </div>
             <div className="profile-meta">
-              <strong>@{channel.owner.username}</strong>
-              <span>•</span>
-              <span>{channel.subscriberCount} subscriber{channel.subscriberCount > 1 ? "s" : ""}</span>
-              <span>•</span>
-              <span>{channel.videos.length} video{channel.videos.length > 1 ? "s" : ""}</span>
-              <span>•</span>
-              <span>created {new Date(channel.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+              <div className="profile-username">
+                <strong>@{channel.owner.username}</strong>
+              </div>
+              <div className="profile-information">
+                <span>•</span>
+                <span>{channel.subscriberCount} subscriber{channel.subscriberCount > 1 ? "s" : ""}</span>
+                <span>•</span>
+                <span>{channel.videos.length} video{channel.videos.length > 1 ? "s" : ""}</span>
+                <span>•</span>
+                <span>created {new Date(channel.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+              </div>
             </div>
             <div className="channel-descrip-block">
               <p>{channel.channelDescription}</p>
@@ -406,6 +442,7 @@ function ManageChannel() {
               />
             </div>
             <div className="manage-channel-actions">
+              <span className="mobile-upload-button" onClick={() => navigate("/channel/manage?upload=true")}>Upload</span>
               <button onClick={() => setChanEditMode(!chanEditMode)} style={{ display: chanEditMode ? "none" : "block" }}>Edit Channel</button>
               <button
                 onClick={() => {

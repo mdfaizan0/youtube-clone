@@ -11,6 +11,7 @@ import { useSelector } from "react-redux"
 import toast from "react-hot-toast"
 
 function VideoPlayer() {
+    // declaring relevant states
     const [showSignin, setShowSignin] = useState(false)
     const [showActionSignin, setShowActionSignin] = useState(false)
     const [showReactionSignin, setShowReactionSignin] = useState(false)
@@ -19,12 +20,15 @@ function VideoPlayer() {
     const [comment, setComment] = useState("")
     const [showCommentBtn, setShowCommentBtn] = useState(false)
     const [recommendations, setRecommendations] = useState(null)
+    // getting videoId from params and getting showGuide from context
     const { videoId } = useParams()
     const { showGuide } = useContext(GuideContext)
+    // getting token and user from redux states and navigate from rrd
     const token = useSelector(state => state.user.token)
     const user = useSelector(state => state.user.user)
     const navigate = useNavigate()
 
+    // getting the actual video to play from BE based on videoId received from params
     useEffect(() => {
         async function fetchVideo() {
             try {
@@ -68,6 +72,7 @@ function VideoPlayer() {
         fetchVideo();
     }, [videoId]);
 
+    // fetching all videos from BE to show as recommendations
     useEffect(() => {
         async function fetchRecomm() {
             try {
@@ -81,6 +86,7 @@ function VideoPlayer() {
         fetchRecomm()
     }, [video])
 
+    // handling subscribing based on action and if the user from redux state is already subscribed
     async function handleSubscribe() {
         try {
             const alreadySubscribed = video?.channel?.subscribers?.includes(user?._id)
@@ -106,6 +112,7 @@ function VideoPlayer() {
         }
     }
 
+    // handling like/dislike reaction based on action (again)
     async function handleReaction(action) {
         try {
             const res = await fetch(`${REACT_VIDEO}/${video?._id}`, {
@@ -117,6 +124,7 @@ function VideoPlayer() {
                 body: JSON.stringify({ action })
             })
             const data = await res.json()
+            // calling BE again for showing the updated video details on UI
             if (res.status === 200) {
                 const updatedVideoRes = await fetch(`${PLAY_VIDEO}/${videoId}`);
                 const updatedData = await updatedVideoRes.json();
@@ -130,11 +138,14 @@ function VideoPlayer() {
         }
     }
 
+    // handling addition of comment
     async function handleAddComment() {
+        // checking if comment is not empty
         if (comment.trim() == "") {
             toast.error("Cannot add empty comment")
             return
         }
+        // if not, send the comment data to BE with videoId
         try {
             const res = await fetch(`${COMMENT}/${video?._id}`, {
                 method: "POST",
@@ -145,6 +156,7 @@ function VideoPlayer() {
                 body: JSON.stringify({ comment })
             })
             const data = await res.json()
+            // again, calling BE to show update on UI
             if (res.status === 201) {
                 const updatedVideoRes = await fetch(`${PLAY_VIDEO}/${videoId}`);
                 const updatedData = await updatedVideoRes.json();
@@ -160,13 +172,14 @@ function VideoPlayer() {
         }
     }
 
+    // sorting comments to show recent first by default
     const sortedComments = [...(video?.comments || [])].sort(
         (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
     )
     const isSubscribed = video?.channel?.subscribers?.includes(user?._id)
-    const filteredRecom = recommendations?.filter(rec => rec?._id !== video?._id)
-    const hasLiked = video?.likedBy?.includes(user?._id)
-    const hasDisliked = video?.dislikedBy?.includes(user?._id)
+    const filteredRecom = recommendations?.filter(rec => rec?._id !== video?._id) // removing current video from recommendations
+    const hasLiked = video?.likedBy?.includes(user?._id) // checking if user has already liked the video to update the like icon
+    const hasDisliked = video?.dislikedBy?.includes(user?._id) // doing the same thing as above
 
     if (!video) return <div className="loading-container"><div className="loading-msg"></div></div>;
 
@@ -180,7 +193,7 @@ function VideoPlayer() {
                     <h1>{video.title}</h1>
                     <div className="extra-options">
                         <div className="channel-block">
-                            <img className="video-avatar" src={video.channel?.channelAvatar} alt={video.channel?.channelName} />
+                            <Link to={`/channel/${video.channel?._id}`}><img className="video-avatar" src={video.channel?.channelAvatar} alt={video.channel?.channelName} /></Link>
                             <div className="channel-meta">
                                 <Link to={`/channel/${video.channel?._id}`} className="channel-name">
                                     <p>{video.channel?.channelName}</p>

@@ -7,7 +7,9 @@ const MAX_THUMB_SIZE = 3 * 1024 * 1024;
 const MAX_THUMB_SIZE_MB = Math.round(MAX_THUMB_SIZE / 1000000);
 const URL_REGEX = /^https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)$/
 
+// video edit modal for video edit and upload based on isNewVideo prop
 function VideoEdit({ video, closeIt, handleAfterSave, isNewVideo }) {
+    // declaring necessary states
     const [thumbPreview, setThumbPreview] = useState(null)
     const [thumbnail, setThumbnail] = useState(null)
     const [newTitle, setNewTitle] = useState("")
@@ -19,6 +21,7 @@ function VideoEdit({ video, closeIt, handleAfterSave, isNewVideo }) {
     const [customCategory, setCustomCategory] = useState("");
     const [videos, setVideos] = useState(null)
 
+    // getting necessary details
     const _id = video?._id
     const description = video?.description
     const tags = video?.tags
@@ -26,9 +29,11 @@ function VideoEdit({ video, closeIt, handleAfterSave, isNewVideo }) {
     const title = video?.title
     const channel = video?.channel
 
+    // setting a reference point of thumbnail using useRef and getting token
     const thumbnailInputRef = useRef(null)
     const token = useSelector(state => state.user.token)
 
+    // fetching videos to add categories for the select
     useEffect(() => {
         async function fetchVideos() {
             try {
@@ -54,6 +59,7 @@ function VideoEdit({ video, closeIt, handleAfterSave, isNewVideo }) {
         fetchVideos()
     }, [])
 
+    // adding existing video details if they exist
     useEffect(() => {
         if (!video) return;
         setNewTitle(title || "");
@@ -65,10 +71,12 @@ function VideoEdit({ video, closeIt, handleAfterSave, isNewVideo }) {
         setLoading(false)
     }, [video]);
 
+    // if isNewVideo is true, should not load
     useEffect(() => {
         if (isNewVideo) setLoading(false)
     }, [isNewVideo])
 
+    // handling thumbnail change to show the selected thumbnail on the UI as soon as it is selected, then setting e.target.value as "" to make it to default for next iteration
     function handleThumbChange(e) {
         if (e.target.files[0]) {
             const file = e.target.files[0];
@@ -79,21 +87,25 @@ function VideoEdit({ video, closeIt, handleAfterSave, isNewVideo }) {
         e.target.value = ""
     }
 
+    // handling submission of the details 
     async function handleSubmit() {
         if (thumbnail) {
             const allowed_formats = ["jpg", "jpeg", "png", "webp"]
             const fileName = thumbnail.name.split(".")
             const fileType = fileName[fileName.length - 1].toLowerCase()
+            // if thumbnail exist, check if the file type does not include allowed formats
             if (!allowed_formats.includes(fileType)) {
                 toast.error(`Sorry, but we don't allow ${fileType} filetypes`)
                 toast.error("The allowed formats : jpg, jpeg, png, webp")
                 return
             }
+            // check if thumbnail size is more than MAX_THUMB_SIZE
             if (thumbnail.size > MAX_THUMB_SIZE) {
                 toast.error(`The maximum file size for thumbnail is ${MAX_THUMB_SIZE_MB} MB`)
                 return
             }
         }
+        // if it is new video, checking all of them exist or if it is editing video, checking for any one of them exist
         if (isNewVideo) {
             if (!newTitle || !newVideoURL || !thumbnail) {
                 toast.error("Title, Video URL and a Thumbnail is required to upload")
@@ -106,10 +118,15 @@ function VideoEdit({ video, closeIt, handleAfterSave, isNewVideo }) {
             }
         }
 
+        // making formData to includes data, for sending to BE
         const formData = new FormData();
+
+        // if title exists add to formData
         if (newTitle) {
             formData.append("title", newTitle)
         }
+
+        // if URL exists, check if valid URL, then add to formData
         if (newVideoURL) {
             if (!URL_REGEX.test(newVideoURL)) {
                 toast.error("Please enter a valid video URL")
@@ -117,15 +134,25 @@ function VideoEdit({ video, closeIt, handleAfterSave, isNewVideo }) {
             }
             formData.append("videoUrl", newVideoURL)
         }
+        // if description exists add to formData
         if (newDescription) {
             formData.append("description", newDescription)
         }
+        // if tags exists add to formData
         if (newTags) {
             formData.append("tags", newTags)
         }
+        // if thumbnail exists add to formData
         if (thumbnail) {
             formData.append("thumbnail", thumbnail)
         }
+        /**
+         * if category selected, 
+         * check if it is other, 
+         * if other, but empty, send toast, 
+         * else format the custom cat add to formData
+         * else, if no custom cat, add selected category to formData
+         */
         if (selectedCategory) {
             if (selectedCategory === "Other") {
                 if (isNewVideo && !customCategory.trim()) {
@@ -140,9 +167,11 @@ function VideoEdit({ video, closeIt, handleAfterSave, isNewVideo }) {
                 formData.append("category", selectedCategory);
             }
         }
+        // set loading as true after checks, such that, it doesn't go to loading state and close itself before checks
         setLoading(true)
         try {
             let res
+            // if new video, call relevant endpoint
             if (isNewVideo) {
                 res = await fetch(UPLOAD_VID, {
                     method: "POST",
@@ -152,6 +181,7 @@ function VideoEdit({ video, closeIt, handleAfterSave, isNewVideo }) {
                     body: formData
                 })
             } else {
+                // if edit video, call relevant endpoint
                 res = await fetch(`${USER_UPDATE_VIDEO}/${channel}/${_id}`, {
                     method: "PUT",
                     headers: {
@@ -172,6 +202,7 @@ function VideoEdit({ video, closeIt, handleAfterSave, isNewVideo }) {
         }
     }
 
+    // close modal on esc keydown
     useEffect(() => {
         const close = (e) => {
             if (e.keyCode === 27) {
@@ -182,6 +213,7 @@ function VideoEdit({ video, closeIt, handleAfterSave, isNewVideo }) {
         return () => window.removeEventListener('keydown', close)
     }, [])
 
+    // set of unique categories by not including uncategorized amongst them
     const categories = [...new Set(videos?.map(vid => vid.category).filter(cat => cat && cat.trim().toLowerCase() !== "uncategorized")), "Other"]
 
     return (

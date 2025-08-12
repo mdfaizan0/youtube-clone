@@ -4,8 +4,10 @@ import { protect } from "../middleware/auth.middleware.js";
 import { uploadThumbnail } from "../config/cloudinary.js";
 import { validateVideoCRUD } from "../middleware/video.middleware.js";
 
+// configuring express router
 const videoRouter = Router()
 
+// creating routes, adding auth middleware and multer middlware where necessary
 videoRouter.post("/upload", protect, uploadThumbnail.single("thumbnail"), uploadVideo)
 videoRouter.get("/all", allVideos)
 videoRouter.get("/watch/:videoId", playVideo)

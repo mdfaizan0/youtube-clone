@@ -1,8 +1,14 @@
-import { useSelector } from "react-redux"
-import { Link } from "react-router-dom"
+import { useDispatch, useSelector } from "react-redux"
+import { Link, useNavigate } from "react-router-dom"
+import { logout } from "../utils/userSlice";
+import toast from "react-hot-toast";
 
 function Sidebar() {
+    // getting token and user from redux, dispatch and navigate from rrd
     const token = useSelector(state => state.user.token)
+    const user = useSelector(state => state.user.user)
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
     return (
         <aside className="guide-sidebar">
             <div className="home-actions sideblock">
@@ -20,16 +26,28 @@ function Sidebar() {
                 </div>
             </div>
             <div className="personal-actions sideblock">
-                <div className="side sidebar-you ">
-                    <img src="https://img.icons8.com/?size=100&id=23400&format=png&color=FFFFFF" alt="sidebar-you" />
-                    <span>You</span>
+                <div className="side sidebar-logout " onClick={() => {
+                    if (token) {
+                        dispatch(logout())
+                        toast.success("Have a good day!", { icon: "✨" })
+                        navigate("/")
+                    } else {
+                        navigate("/login")
+                    }
+                }}>
+                    <img src={token ? "https://img.icons8.com/?size=100&id=82792&format=png&color=FFFFFF" : "https://img.icons8.com/?size=100&id=61050&format=png&color=FFFFFF"} alt="sidebar-logout" />
+                    <span>{token ? "Logout" : "Login"}</span>
                 </div>
+                <Link to={token ? user?.channels?.length !== 0 ? `/channel/manage` : `/channel/create` : `/login`} className="side sidebar-you">
+                    <img src={token ? user.avatar : "https://img.icons8.com/?size=100&id=23400&format=png&color=FFFFFF"} alt="home-icon" />
+                    <span>You</span>
+                </Link>
                 <div className="side sidebar-history">
                     <img src="https://img.icons8.com/?size=100&id=86136&format=png&color=FFFFFF" alt="sidebar-history" />
                     <span>History</span>
                 </div>
             </div>
-            <div className="signin-cta-sidebar sideblock" style={{display: token? "none" : "flex"}}>
+            <div className="signin-cta-sidebar sideblock" style={{ display: token ? "none" : "flex" }}>
                 <span>Sign in to like videos, comment, and subscribe.</span>
                 <Link to="/login" className="signin-btn">
                     <img src="https://img.icons8.com/?size=100&id=23400&format=png&color=FFFFFF" alt="person" />

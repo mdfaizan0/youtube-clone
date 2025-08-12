@@ -11,6 +11,7 @@ const MAX_BANNER_SIZE = 5 * 1024 * 1024;
 const MAX_BANNER_SIZE_MB = Math.round(MAX_BANNER_SIZE / 1000000);
 
 function CreateChannel() {
+    // delaring states, redux states and getting rrd hooks
     const [channelAvatarURL, setChannelAvatarURL] = useState("")
     const [bannerPreview, setBannerPreview] = useState(null)
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm()
@@ -19,6 +20,7 @@ function CreateChannel() {
     const navigate = useNavigate()
     const dispatch = useDispatch()
 
+    // route protection thru user and token state
     useEffect(() => {
         if (user?.channels.length >= 1) {
             toast("As of now, we only support 1 channel per user, please use your existing channel")
@@ -33,7 +35,9 @@ function CreateChannel() {
         }
     }, [token, user])
 
+    // handling submission of channel creation
     async function onSubmit(data) {
+        // setting formData and doing necessary checks for banner
         const formData = new FormData()
         if (data.channelBanner[0]) {
             const allowed_formats = ["jpg", "jpeg", "png", "webp"]
@@ -51,6 +55,7 @@ function CreateChannel() {
             formData.append("channelBanner", data.channelBanner[0])
         }
 
+        // checking the other values exist and adding them to formData and then sending the data thru formData
         if (data.channelName) formData.append("channelName", data.channelName)
         if (data.channelDescription) formData.append("channelDescription", data.channelDescription)
         if (channelAvatarURL) formData.append("channelAvatar", channelAvatarURL)
@@ -83,12 +88,14 @@ function CreateChannel() {
         }
     }
 
+    // removing bannerPreview from memory
     useEffect(() => {
         return () => {
             if (bannerPreview) URL.revokeObjectURL(bannerPreview);
         }
     }, [bannerPreview])
 
+    // handling cloudinary upload widget configuring and calling it
     function handleUploadChannelAvatar() {
         const widget = window.cloudinary.createUploadWidget({
             cloudName: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME,
@@ -131,6 +138,7 @@ function CreateChannel() {
                 console.error("Upload error:", error);
                 return;
             }
+            // if result is success, setting URL to send to onSubmit
             if (result.event === "success") {
                 const url = result.info.secure_url;
                 setChannelAvatarURL(url);

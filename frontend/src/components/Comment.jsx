@@ -6,6 +6,7 @@ import { useConfirm } from "material-ui-confirm"
 import toast from "react-hot-toast"
 
 function Comment({ comment, videoId, setVideo }) {
+    // declaring necessary states and getting user and token
     const [showCommenOption, setShowCommentOption] = useState(false)
     const [editingComment, setEditingComment] = useState(false)
     const [editedComment, setEditedComment] = useState("")
@@ -13,19 +14,25 @@ function Comment({ comment, videoId, setVideo }) {
     const { avatar, username } = comment.user
     const user = useSelector(state => state.user.user)
     const token = useSelector(state => state.user.token)
+    // getting confirm hook from material-ui-confirm to show confirmation messages before going further
     const confirm = useConfirm()
 
+    // handling edit of a comment
     async function handleEditComment() {
+        // checking if updated comment is empty
         if (editedComment.trim() == "") {
             toast("Cannot add empty comment")
             return
         }
+
+        // if existing comment and updated comment is same, do nothing and close the editing mode
         if (editedComment === comment.comment) {
             setShowCommentBtn(false)
             setEditingComment(false)
             return
         }
         try {
+            // if not, sending request to BE with API routes, video ID, comment ID
             const res = await fetch(`${COMMENT}/${videoId}/${comment?._id}`, {
                 method: 'PUT',
                 headers: {
@@ -34,6 +41,7 @@ function Comment({ comment, videoId, setVideo }) {
                 },
                 body: JSON.stringify({ updatedComment: editedComment })
             })
+            // getting data, getting updated video data to show updated comment on UI and then showing success toast, else, show error toast
             const data = await res.json()
             if (res.status === 200) {
                 const updatedVideoRes = await fetch(`${PLAY_VIDEO}/${videoId}`);
@@ -43,7 +51,7 @@ function Comment({ comment, videoId, setVideo }) {
                 setShowCommentBtn(false)
                 setEditingComment(false)
             } else {
-                toast(data.message)
+                toast.error(data.message)
             }
         } catch (error) {
             console.error("Error while editing comment", error)
@@ -51,6 +59,7 @@ function Comment({ comment, videoId, setVideo }) {
         }
     }
 
+    // handling deleting a comment
     async function handleDeleteComment() {
         setShowCommentOption(false)
         try {
@@ -60,6 +69,7 @@ function Comment({ comment, videoId, setVideo }) {
                 confirmationText: "Delete",
                 cancellationText: "Cancel"
             })
+            // if confirmed, sending request to BE
             if (confirmed) {
                 const res = await fetch(`${COMMENT}/${videoId}/${comment?._id}`, {
                     method: 'DELETE',
@@ -69,6 +79,7 @@ function Comment({ comment, videoId, setVideo }) {
                     }
                 })
                 const data = await res.json()
+                // again, getting data, updating video details, same as edit
                 if (res.status === 200) {
                     const updatedVideoRes = await fetch(`${PLAY_VIDEO}/${videoId}`);
                     const updatedData = await updatedVideoRes.json();

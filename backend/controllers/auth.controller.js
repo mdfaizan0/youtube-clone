@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs"
 
 dotenv.config()
 
+// controller to handle signup (register) with default avatar and necessary checks
 export async function signUpUser(req, res) {
     const { name, username, email, password, avatar, consent } = req.body
     if (!name || !username || !email || !password) {
@@ -16,7 +17,7 @@ export async function signUpUser(req, res) {
         if (userExists) return res.status(409).json({ message: "User already exists, please login instead" })
 
         const hashedPassword = await bcrypt.hash(password, 12)
-        const user = await User.create({ name, username, email, password: hashedPassword, avatar: avatar || "https://img.icons8.com/?size=100&id=7819&format=png&color=FFFFFF", consent })
+        const user = await User.create({ name, username, email, password: hashedPassword, avatar: avatar || "https://i.pinimg.com/474x/e5/63/46/e56346cf2916063035418d1ee9a7c5ad.jpg", consent })
 
         return res.status(201).json({
             message: `User ${user.name} registered successfully`,
@@ -34,6 +35,7 @@ export async function signUpUser(req, res) {
     }
 }
 
+// controller to handle signin (login) with necessary checks
 export async function signInUser(req, res) {
     const { email, password } = req.body
 
@@ -52,13 +54,14 @@ export async function signInUser(req, res) {
         const userObj = user.toObject()
         delete userObj.password
 
-        const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "1d" })
+        const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: "5d" })
         return res.status(200).json({ message: "User authorized", token, isMatch, user: userObj })
     } catch (error) {
         return res.status(500).json({ message: "Server error while signing in", error: error.message })
     }
 }
 
+// // controller to send user profile after authentication
 export async function userProfile(req, res) {
     try {
         return res.status(200).json({ message: "User profile fetched", user: req.user })

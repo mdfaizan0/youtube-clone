@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom"
 
+// static guide on home page only
 function GuideAside() {
     return (
         <aside className="guide-aside">

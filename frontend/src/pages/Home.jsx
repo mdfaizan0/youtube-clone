@@ -4,18 +4,23 @@ import { GuideContext } from "../utils/GuideContext"
 import Sidebar from "../components/Sidebar"
 import GuideAside from "../components/GuideAside"
 import { ALL_VIDEOS } from "../utils/API_CONFIG"
+import MobileNav from "../components/MobileNav"
 
 function Home() {
+  // setting relevant states
   const [feed, setFeed] = useState(null)
   const [loading, setLoading] = useState(true)
   const [filteredFeed, setFilteredFeed] = useState(null)
   const [activeCategory, setActiveCategory] = useState("All")
-  const { showGuide } = useContext(GuideContext)
+  // getting guide state from guide context
+  const { showGuide, setShowGuide } = useContext(GuideContext)
 
+  // setting feed to to filtered feed to iniltialize after successful feed fetch from BE
   useEffect(() => {
     if (feed) setFilteredFeed(feed)
   }, [feed])
 
+  // fetching videos from BE and setting feed 
   useEffect(() => {
     setLoading(true)
     async function fetchFeed() {
@@ -44,7 +49,11 @@ function Home() {
     fetchFeed()
   }, [])
 
+  // getting all the unique categories
   const categories = [...new Set(feed?.map(vid => vid.category))]
+
+  // getting active category and if category is ALl, setting filtered feed to whole videos, else, 
+  // filtering feed and setting filtered feed to only those videos which are same as cat paramters
   function handleCategory(cat) {
     setActiveCategory(cat)
     if (cat === "All") {
@@ -63,7 +72,7 @@ function Home() {
           <div className="loading-msg"></div>
         </div>
       ) :
-        <div className="content-container">
+        <div className="content-container" onClick={() => setShowGuide(false)}>
           {showGuide ? <Sidebar /> : <GuideAside />}
           <div className="category-bar" style={{ marginLeft: showGuide ? "12vw" : "4vw" }} >
             <span className={activeCategory === "All" ? "active" : ""} onClick={() => handleCategory("All")}>All</span>
@@ -74,6 +83,7 @@ function Home() {
               return <VideoTile video={vid} key={vid._id} />
             })}
           </div>
+          <MobileNav />
         </div>
       }
     </>

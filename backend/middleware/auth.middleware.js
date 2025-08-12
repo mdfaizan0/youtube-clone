@@ -4,6 +4,7 @@ import User from "../models/User.model.js"
 
 dotenv.config()
 
+// middleware to handle user auth and check if token exist, if not, send necessary response
 export async function protect(req, res, next) {
     const authHeader = req.headers.authorization
 

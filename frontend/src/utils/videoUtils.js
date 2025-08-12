@@ -1,3 +1,4 @@
+// utility function to handle format views from integer to youtube-like format
 export function formatViews(views) {
     let formattedViews = views
 
@@ -25,6 +26,7 @@ export function formatViews(views) {
     return formattedViews
 }
 
+// utility function to convert second to minutes:seconds
 export function convertStoMs(seconds) {
     let minutes = Math.floor(seconds / 60);
     let extraSeconds = seconds % 60;

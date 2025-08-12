@@ -1,3 +1,6 @@
+// https://github.com/mdfaizan0/youtube-clone
+
+// importing relevant dependencies
 import { createRoot } from 'react-dom/client'
 import App from './App.jsx'
 import { createBrowserRouter, RouterProvider } from "react-router-dom"
@@ -9,6 +12,7 @@ import { ConfirmProvider } from "material-ui-confirm"
 import { Toaster } from "react-hot-toast"
 import "./utils/style.css"
 
+// making pages to lazy component to decrease the redundancy and load the component's code only when it is loaded for the first time
 const Home = lazy(() => import('./pages/Home.jsx'))
 const Login = lazy(() => import('./pages/Login.jsx'))
 const SignUp = lazy(() => import('./pages/SignUp.jsx'))
@@ -19,6 +23,7 @@ const PublicChannel = lazy(() => import('./pages/PublicChannel.jsx'))
 const CreateChannel = lazy(() => import('./pages/CreateChannel.jsx'))
 const SearchResults = lazy(() => import('./pages/SearchResults.jsx'))
 
+// configuring app router with createBrowserRouter from rrd
 const appRouter = createBrowserRouter([
   {
     path: "/",
@@ -38,8 +43,11 @@ const appRouter = createBrowserRouter([
   }
 ])
 
+// creating root and adding root element into it
 createRoot(document.getElementById('root')).render(
+  // redux's Provider 
   <Provider store={appStore}>
+    {/* ConfirmProvider from "material-ui-confirm", configuring and styling it */}
     <ConfirmProvider
       defaultOptions={{
         dialogProps: {
@@ -92,6 +100,7 @@ createRoot(document.getElementById('root')).render(
         }
       }}
     >
+      {/* Toaster from "react-hot-toast", configuring and styling it */}
       <Toaster
         position="top-center"
         reverseOrder={false}
@@ -133,8 +142,11 @@ createRoot(document.getElementById('root')).render(
           duration: 4000,
         }}
       />
+      {/* Suspense to allow react to lozy load the lazy components */}
       <Suspense fallback={<div className="loading-container"><div className="loading-msg"></div></div>}>
+        {/* GuideProvider with showGuide and setShowGuide to handle sidebar toggle throughout the app */}
         <GuideProvider>
+          {/* react-router-dom's RouteProvider to navigate throughout the app */}
           <RouterProvider router={appRouter} />
         </GuideProvider>
       </Suspense>

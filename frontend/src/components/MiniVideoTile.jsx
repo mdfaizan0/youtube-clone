@@ -4,9 +4,11 @@ import { Link } from "react-router-dom"
 import { useState } from "react"
 
 function MiniVideoTile({ video, page, isOwner, handleVideoEdit, handleVideoDelete }) {
+    // getting states
     const [showVideoEditOption, setShowVideoEditOption] = useState(false)
     const { title, views, createdAt, thumbnailUrl, duration } = video
 
+    // taking out details what is needed here from props
     const channelName = video?.channel?.channelName
     const verified = video?.channel?.verified
     const _id = video?.channel?._id

@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// comment schema
 const commentSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
@@ -19,6 +20,7 @@ const commentSchema = new mongoose.Schema({
     }
 });
 
+// video schema with user as objectIds
 const videoSchema = mongoose.Schema({
     title: {
         type: String,
@@ -83,6 +85,7 @@ const videoSchema = mongoose.Schema({
     }
 }, { timestamps: true })
 
+// creating model and exporting
 const Video = mongoose.model("Video", videoSchema)
 
 export default Video
