@@ -27,7 +27,7 @@ export async function uploadVideo(req, res) {
     }
 
     try {
-        // finding duration with get-video-duration pkg and finding the user
+        // finding video duration with get-video-duration pkg and finding the user
         const duration = await getVideoDurationInSeconds(videoUrl)
         const userChannel = await Channel.findOne({ owner: req.user._id })
 

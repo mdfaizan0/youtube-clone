@@ -14,25 +14,26 @@ The project focuses on a smooth, modern UI, robust backend handling, and real-ti
 ## 🚀 Tech Stack
 
 ### **Frontend**
-- React 19
-- Redux Toolkit
-- React Router DOM 7
-- Material UI Confirm (MUI)
-- React Hook Form
-- React Hot Toast
-- Date-fns
-- Material UI Confirm
+- [React 19](https://react.dev/)
+- [Redux Toolkit](https://redux-toolkit.js.org/)
+- [React Router DOM 7](https://reactrouter.com/)
+- [Material UI (MUI)](https://mui.com/material-ui/)
+- [React Hook Form](https://www.react-hook-form.com/)
+- [React Hot Toast](https://react-hot-toast.com/)
+- [Date-fns](https://date-fns.org/)
+- [Material UI Confirm](https://github.com/jonatanklosko/material-ui-confirm)
 - Core CSS & Responsive Design
 
 ### **Backend**
-- Node.js
-- Express 5
-- MongoDB + Mongoose
-- JWT Authentication
-- Multer + Cloudinary for image storage
-- BcryptJS for password hashing
-- Get-video-duration for media duration handling
-- CORS, Dotenv
+- [Node.js](https://nodejs.org/en)
+- [Express 5](https://expressjs.com/)
+- [MongoDB](https://www.mongodb.com/) 
+- [Mongoose](https://mongoosejs.com/)
+- [JWT Authentication](https://www.jwt.io/)
+- [Multer + Cloudinary for image storage (multer-cloudinary-storage)](https://github.com/affanshahid/multer-storage-cloudinary)
+- [BcryptJS for password hashing](https://github.com/dcodeIO/bcrypt.js)
+- [Get-video-duration for media duration handling](https://github.com/caffco/get-video-duration)
+- [CORS](https://github.com/expressjs/cors), [Dotenv](https://github.com/motdotla/dotenv)
 
 ## ✨ Features
 
@@ -96,7 +97,7 @@ The project follows a **monorepo structure** with separate `frontend/` and `back
 
 ## ⚙️ Setup & Run Locally
 
-> Requires **[Node.js v18+](https://nodejs.org/en)** and an **internet connection** (obviously hahaha).
+> Requires **[Node.js v18+](https://nodejs.org/en/download)** and an **internet connection** (obviously hahaha).
 
 ---
 
