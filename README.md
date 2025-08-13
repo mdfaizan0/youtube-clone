@@ -6,10 +6,9 @@ The project focuses on a smooth, modern UI, robust backend handling, and real-ti
 
 ## 💻 Live Demo
 
-*To be added soon*
-<!-- [Click here](https://shoppyglobe-frontend.onrender.com/) to view a live demo of **YouTube-Clone**.
+[Click here](https://youtube-clone-watchit.onrender.com/) to view a live demo of **YouTube-Clone**.
 
-> Note: Both the frontend and backend are deployed on [**Render**](https://www.render.com/), so the backend may take a few seconds to wake up on first request. -->
+> Note: Both the frontend and backend are deployed on [**Render**](https://www.render.com/), so the backend may take a few seconds to wake up on first request.
 
 ## 🚀 Tech Stack
 
