@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate } from "react-router-dom"
 import "../utils/style.css"
 import { useSelector } from "react-redux"
 import toast from "react-hot-toast"
+import { SIGNUP } from "../utils/API_CONFIG"
 
 function SignUp() {
     // declaring necessary states
@@ -108,7 +109,7 @@ function SignUp() {
 
         // sending post request to BE with user details
         try {
-            const res = await fetch("http://localhost:5000/api/auth/signup", {
+            const res = await fetch(SIGNUP, {
                 method: "POST",
                 headers: {
                     "Content-type": "application/json"

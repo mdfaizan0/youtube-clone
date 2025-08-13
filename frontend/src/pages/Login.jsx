@@ -4,6 +4,7 @@ import "../utils/style.css"
 import { setToken, setUser } from "../utils/userSlice"
 import { useDispatch, useSelector } from "react-redux"
 import toast from "react-hot-toast"
+import { SIGNIN } from "../utils/API_CONFIG"
 
 function Login() {
     // setting states, getting rrd hooks and getting token state from redux
@@ -29,7 +30,7 @@ function Login() {
         }
         // if yes, sending data to BE
         try {
-            const res = await fetch("http://localhost:5000/api/auth/signin", {
+            const res = await fetch(SIGNIN, {
                 method: "POST",
                 headers: {
                     "Content-type": "application/json"
