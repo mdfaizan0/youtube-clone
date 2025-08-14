@@ -117,14 +117,14 @@ npm install
 Create a `.env` file in the `backend/` directory and add the following:
 
 ```bash
-MONGO_URI="mongodb+srv://readonly-user:UfJGpb2jGQ0kB8cB@cluster0.s6n7lco.mongodb.net/youtube-clone"
+MONGO_URI="your-mongodb-URI-for-vscode"
 PORT=5000
 JWT_SECRET="your-jwt-secret-key"
 
 CLOUDINARY_CLOUD_NAME="your-cloudinary-cloud-name"
 CLOUDINARY_API_KEY="your-cloudinary-api-key"
 CLOUDINARY_API_SECRET="your-cloudinary-api-secret"
-CLOUDINARY_URL="CLOUDINARY_URL=cloudinary://<your_api_key>:<your_api_secret>@<cloud-name>"
+CLOUDINARY_URL="cloudinary://<your_api_key>:<your_api_secret>@<cloud-name>"
 ```
 
 > You should replace all the placeholders with your own API_KEY, SECRETs and CLOUD_NAME.
