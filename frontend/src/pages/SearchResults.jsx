@@ -11,6 +11,11 @@ function SearchResults() {
     const [message, setMessage] = useState("")
     const [searchParams] = useSearchParams()
     const query = searchParams.get("q")?.trim()
+
+    useEffect(() => {
+        document.title = `${query} - YouTube`
+    }, [query])
+
     useEffect(() => {
         // if there is no query, dont show loading screen
         if (!query) {
@@ -42,20 +47,22 @@ function SearchResults() {
         fetchSearch()
     }, [query])
 
+    console.log(resultVideos)
+
     return (
         <div className="search-results-page">
             {loading ? <div className="loading-container"><div className="loading-msg"></div></div> :
                 query && resultVideos ? resultVideos.map(video => {
                     return (
                         <div className="search-tile" key={video._id}>
-                            <div className="search-tile-img">
-                                <img src={video.thumbnailUrl} alt="thumbnail" loading="lazy"/>
+                            <Link to={`/watch/${video._id}`} className="search-tile-img">
+                                <img src={video.thumbnailUrl} alt="thumbnail" loading="lazy" />
                                 <span className="duration">{convertStoMs(video.duration)}</span>
-                            </div>
+                            </Link>
                             <div className="search-tile-details">
-                                <div className="search-tile-title">
+                                <Link to={`/watch/${video._id}`} className="search-tile-title">
                                     <p>{video.title}</p>
-                                </div>
+                                </Link>
                                 <div className="search-tile-channel-meta">
                                     <div className="search-tile-meta">
                                         <small>{formatViews(video.views)}</small>
@@ -63,7 +70,7 @@ function SearchResults() {
                                         <small>{formatDistanceToNow(video.createdAt)}</small>
                                     </div>
                                     <div className="search-tile-channel">
-                                        <Link to={`/channel/${video.channel._id}`}><img src={video.channel.channelAvatar} alt="channel-avatar" loading="lazy"/></Link>
+                                        <Link to={`/channel/${video.channel._id}`}><img src={video.channel.channelAvatar} alt="channel-avatar" loading="lazy" /></Link>
                                         <Link to={`/channel/${video.channel._id}`}><small>{video.channel.channelName}</small></Link>
                                         <img src="https://img.icons8.com/?size=100&id=36872&format=png&color=FFFFFF" alt="verified-status" title="Verified" style={video.channel.verified ? { display: "block" } : { display: "none" }} loading="lazy" />
                                     </div>
@@ -74,7 +81,7 @@ function SearchResults() {
                     )
                 }) :
                     <div className="no-result-container">
-                        <img src="https://i.ibb.co/rRJyzDCk/svgviewer-png-output-1.png" alt="no-result-blob" loading="lazy"/>
+                        <img src="https://i.ibb.co/rRJyzDCk/svgviewer-png-output-1.png" alt="no-result-blob" loading="lazy" />
                         <p>{message || "No results found"}</p>
                         <small>Try different keywords</small>
                     </div>}

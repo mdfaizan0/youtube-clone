@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Link, Navigate, useNavigate } from "react-router-dom"
 import "../utils/style.css"
 import { useSelector } from "react-redux"
@@ -6,6 +6,10 @@ import toast from "react-hot-toast"
 import { SIGNUP } from "../utils/API_CONFIG"
 
 function SignUp() {
+    useEffect(() => {
+        document.title = "Sign up - YouTube"
+    }, [])
+
     // declaring necessary states
     const [name, setName] = useState("")
     const [username, setUsername] = useState("")

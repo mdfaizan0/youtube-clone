@@ -7,6 +7,10 @@ import { ALL_VIDEOS } from "../utils/API_CONFIG"
 import MobileNav from "../components/MobileNav"
 
 function Home() {
+  useEffect(() => {
+    document.title = "YouTube"
+  }, [])
+
   // setting relevant states
   const [feed, setFeed] = useState(null)
   const [loading, setLoading] = useState(true)

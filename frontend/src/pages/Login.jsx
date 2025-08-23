@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Link, Navigate, useNavigate } from "react-router-dom"
 import "../utils/style.css"
 import { setToken, setUser } from "../utils/userSlice"
@@ -7,6 +7,10 @@ import toast from "react-hot-toast"
 import { SIGNIN } from "../utils/API_CONFIG"
 
 function Login() {
+    useEffect(() => {
+        document.title = "Sign in - YouTube"
+    }, [])
+
     // setting states, getting rrd hooks and getting token state from redux
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
@@ -46,7 +50,7 @@ function Login() {
             if (res.status === 200) {
                 dispatch(setUser(data.user))
                 dispatch(setToken(data.token))
-                toast.success(`Welcome Back, ${data.user.name.split(" ")[0]}`, {icon: "👋🏻"})
+                toast.success(`Welcome Back, ${data.user.name.split(" ")[0]}`, { icon: "👋🏻" })
                 navigate("/")
                 // if response status is 404 or 401, show backend sent message as toast
             } else if (res.status === 404 || res.status === 401) {

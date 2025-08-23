@@ -140,7 +140,7 @@ body {
     grid-template-columns: repeat(auto-fit, minmax(22rem, 1fr));
     transition: margin-left 0.3s ease;
     margin-top: 30px;
-    margin-right: 20px;
+    margin-right: 2rem;
 }
 
 .video-info {
@@ -2272,7 +2272,7 @@ body {
     flex: 1;
 }
 
-.search-tile-details>div>p {
+.search-tile-details>a>p {
     font-size: 1.1rem;
     font-weight: 500;
     margin: 0;
@@ -2556,7 +2556,7 @@ body {
         flex-direction: column;
     }
 
-    .search-tile-details>div>p {
+    .search-tile-details>a>p {
         font-size: 1rem;
     }
 

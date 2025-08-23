@@ -11,6 +11,10 @@ const MAX_BANNER_SIZE = 5 * 1024 * 1024;
 const MAX_BANNER_SIZE_MB = Math.round(MAX_BANNER_SIZE / 1000000);
 
 function CreateChannel() {
+    useEffect(()=>{
+        document.title = "Create a new channel - YouTube"
+    }, [])
+    
     // delaring states, redux states and getting rrd hooks
     const [channelAvatarURL, setChannelAvatarURL] = useState("")
     const [bannerPreview, setBannerPreview] = useState(null)

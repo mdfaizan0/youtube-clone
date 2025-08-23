@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 function NotFound() {
@@ -6,6 +7,10 @@ function NotFound() {
   const path = location.state?.from || window.location.pathname;
   const status = location.state?.status || 404;
   const message = location.state?.message || "The page you're looking for doesn’t exist.";
+
+  useEffect(() => {
+    document.title = `${status} - YouTube`
+  }, [])
 
   return (
     <div className="notfound-container">

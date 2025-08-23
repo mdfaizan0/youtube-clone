@@ -72,6 +72,12 @@ function VideoPlayer() {
         fetchVideo();
     }, [videoId]);
 
+    useEffect(() => {
+        if (video?.title) {
+            document.title = `${video?.title} - YouTube`
+        }
+    }, [video, videoId])
+
     // fetching all videos from BE to show as recommendations
     useEffect(() => {
         async function fetchRecomm() {
@@ -255,19 +261,19 @@ function VideoPlayer() {
                                 </div>
                             </div>
                             <button>
-                                <img src="https://img.icons8.com/?size=100&id=K6OM9OBagzCm&format=png&color=FFFFFF" alt="share" loading="lazy"/>
+                                <img src="https://img.icons8.com/?size=100&id=K6OM9OBagzCm&format=png&color=FFFFFF" alt="share" loading="lazy" />
                                 <span>Share</span>
                             </button>
                             <button>
-                                <img src="https://img.icons8.com/?size=100&id=14100&format=png&color=FFFFFF" alt="download" loading="lazy"/>
+                                <img src="https://img.icons8.com/?size=100&id=14100&format=png&color=FFFFFF" alt="download" loading="lazy" />
                                 <span>Download</span>
                             </button>
                             <button>
-                                <img src="https://img.icons8.com/?size=100&id=82461&format=png&color=FFFFFF" alt="save" loading="lazy"/>
+                                <img src="https://img.icons8.com/?size=100&id=82461&format=png&color=FFFFFF" alt="save" loading="lazy" />
                                 <span>Save</span>
                             </button>
                             <button>
-                                <img src="https://img.icons8.com/?size=100&id=84119&format=png&color=FFFFFF" alt="save" className="options-img" loading="lazy"/>
+                                <img src="https://img.icons8.com/?size=100&id=84119&format=png&color=FFFFFF" alt="save" className="options-img" loading="lazy" />
                             </button>
                         </div>
                     </div>
@@ -286,7 +292,7 @@ function VideoPlayer() {
                         <div className="comments-head">
                             <h3>{video?.comments?.length} Comments</h3>
                             <div className="comment-cta">
-                                <img src={token ? user.avatar : "https://yt3.ggpht.com/a/default-user=s48-c-k-c0x00ffffff-no-rj"} alt="default-avatar" loading="lazy"/>
+                                <img src={token ? user.avatar : "https://yt3.ggpht.com/a/default-user=s48-c-k-c0x00ffffff-no-rj"} alt="default-avatar" loading="lazy" />
                                 {token ?
                                     <div className="add-comment">
                                         <input type="text"

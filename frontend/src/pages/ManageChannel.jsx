@@ -118,7 +118,7 @@ function ManageChannel() {
       })
       // if not confirmed, get out of the func
       if (!confirmed) return;
-      
+
       // if confirmed, calling toast.promise and self-executing the function to call backend for channel deletion 
       // while it shows a loading spinner 
       // eventually showing completion or error message from BE
@@ -340,6 +340,12 @@ function ManageChannel() {
     fetchUserChannel()
   }, [loading])
 
+  useEffect(() => {
+    if (channel?.channelName) {
+      document.title = `${channel?.channelName} - Manage Your Channel`
+    }
+  }, [channel])
+
   // removing bannerPreview here too for safety and consistency
   useEffect(() => {
     return () => {
@@ -347,147 +353,149 @@ function ManageChannel() {
     }
   }, [bannerPreview])
 
-  return (<>
-    {loading ? (
-      <div className="loading-container">
-        <div className="loading-msg"></div>
-      </div>
-    ) : (
-      <div className="channel-page" style={{ pointerEvents: isVideoEditOpen ? "none" : "auto", userSelect: isVideoEditOpen ? "none" : "auto" }}>
-        <div className="channel-banner">
-          <img src={bannerPreview ? bannerPreview : channel.channelBanner} alt="channelBanner" loading="lazy"/>
-          <img
-            src="https://img.icons8.com/?size=100&id=7EmcfPM09Gkp&format=png&color=FFFFFF"
-            alt="edit-icon"
-            onClick={() => bannerInputRef.current.click()}
-            style={{ display: chanEditMode ? "block" : "none" }}
-            loading="lazy"
-          />
-          <input
-            type="file"
-            accept="image/jpg, image/jpeg, image/png, image/webp"
-            onChange={handleBannerChange}
-            ref={bannerInputRef}
-            style={{ display: "none" }}
-          />
+  return (
+    <>
+      {loading ? (
+        <div className="loading-container">
+          <div className="loading-msg"></div>
         </div>
-        <div className="channel-profile">
-          <div className="channel-avatar">
-            <img src={updatedChanAvaURL ? updatedChanAvaURL : channel.channelAvatar} alt="channelAvatar" loading="lazy"/>
-            <div style={{ display: chanEditMode ? "flex" : "none" }}>
-              <img
-                src="https://img.icons8.com/?size=100&id=7EmcfPM09Gkp&format=png&color=FFFFFF"
-                alt="edit"
-                className="avatar-edit"
-                onClick={handleUpdateChannelAvatar}
-                loading="lazy"
-              />
-            </div>
+      ) : (
+        <div className="channel-page" style={{ pointerEvents: isVideoEditOpen ? "none" : "auto", userSelect: isVideoEditOpen ? "none" : "auto" }}>
+          <div className="channel-banner">
+            <img src={bannerPreview ? bannerPreview : channel.channelBanner} alt="channelBanner" loading="lazy" />
+            <img
+              src="https://img.icons8.com/?size=100&id=7EmcfPM09Gkp&format=png&color=FFFFFF"
+              alt="edit-icon"
+              onClick={() => bannerInputRef.current.click()}
+              style={{ display: chanEditMode ? "block" : "none" }}
+              loading="lazy"
+            />
+            <input
+              type="file"
+              accept="image/jpg, image/jpeg, image/png, image/webp"
+              onChange={handleBannerChange}
+              ref={bannerInputRef}
+              style={{ display: "none" }}
+            />
           </div>
-          <div className="profile-info">
-            <div className="channel-name-container">
-              <div className="channel-name-block">
-                <span>{channel.channelName}</span>
+          <div className="channel-profile">
+            <div className="channel-avatar">
+              <img src={updatedChanAvaURL ? updatedChanAvaURL : channel.channelAvatar} alt="channelAvatar" loading="lazy" />
+              <div style={{ display: chanEditMode ? "flex" : "none" }}>
                 <img
-                  src="https://img.icons8.com/?size=100&id=36872&format=png&color=FFFFFF"
-                  alt="verified-status"
-                  title="Verified"
-                  style={channel?.verified ? { display: "block" } : { display: "none" }}
-                  loading="lazy" />
-                <input
-                  type="text"
-                  placeholder="Enter a new channel name"
-                  style={{ display: editingChanName ? "block" : "none" }}
-                  onChange={(e) => setUpdatedChanName(e.target.value)}
-                  value={updatedChanName}
+                  src="https://img.icons8.com/?size=100&id=7EmcfPM09Gkp&format=png&color=FFFFFF"
+                  alt="edit"
+                  className="avatar-edit"
+                  onClick={handleUpdateChannelAvatar}
+                  loading="lazy"
                 />
               </div>
-              <img
-                src="https://img.icons8.com/?size=100&id=71201&format=png&color=FFFFFF"
-                alt="edit"
-                className="edit-btn"
-                style={{ display: chanEditMode ? "block" : "none" }}
-                onClick={() => setEditingChanName(!editingChanName)}
-                loading="lazy"
-              />
             </div>
-            <div className="profile-meta">
-              <div className="profile-username">
-                <strong>@{channel.owner.username}</strong>
+            <div className="profile-info">
+              <div className="channel-name-container">
+                <div className="channel-name-block">
+                  <span>{channel.channelName}</span>
+                  <img
+                    src="https://img.icons8.com/?size=100&id=36872&format=png&color=FFFFFF"
+                    alt="verified-status"
+                    title="Verified"
+                    style={channel?.verified ? { display: "block" } : { display: "none" }}
+                    loading="lazy" />
+                  <input
+                    type="text"
+                    placeholder="Enter a new channel name"
+                    style={{ display: editingChanName ? "block" : "none" }}
+                    onChange={(e) => setUpdatedChanName(e.target.value)}
+                    value={updatedChanName}
+                  />
+                </div>
+                <img
+                  src="https://img.icons8.com/?size=100&id=71201&format=png&color=FFFFFF"
+                  alt="edit"
+                  className="edit-btn"
+                  style={{ display: chanEditMode ? "block" : "none" }}
+                  onClick={() => setEditingChanName(!editingChanName)}
+                  loading="lazy"
+                />
               </div>
-              <div className="profile-information">
-                <span>•</span>
-                <span>{channel.subscriberCount} subscriber{channel.subscriberCount > 1 ? "s" : ""}</span>
-                <span>•</span>
-                <span>{channel.videos.length} video{channel.videos.length > 1 ? "s" : ""}</span>
-                <span>•</span>
-                <span>created {new Date(channel.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+              <div className="profile-meta">
+                <div className="profile-username">
+                  <strong>@{channel.owner.username}</strong>
+                </div>
+                <div className="profile-information">
+                  <span>•</span>
+                  <span>{channel.subscriberCount} subscriber{channel.subscriberCount > 1 ? "s" : ""}</span>
+                  <span>•</span>
+                  <span>{channel.videos.length} video{channel.videos.length > 1 ? "s" : ""}</span>
+                  <span>•</span>
+                  <span>created {new Date(channel.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                </div>
               </div>
-            </div>
-            <div className="channel-descrip-block">
-              <p>{channel.channelDescription}</p>
-              <textarea
-                type="text"
-                placeholder="Enter a new channel description"
-                style={{ display: editingChanDesc ? "block" : "none" }}
-                rows="1"
-                cols="61"
-                maxLength="300"
-                onChange={(e) => setUpdatedChanDesc(e.target.value)}
-                value={updatedChanDesc}
-              />
-              <img
-                src="https://img.icons8.com/?size=100&id=71201&format=png&color=FFFFFF"
-                alt="edit"
-                className="edit-btn"
-                style={{ display: chanEditMode ? "block" : "none" }}
-                onClick={() => setEditingChanDesc(!editingChanDesc)}
-                loading="lazy"
-              />
-            </div>
-            <div className="manage-channel-actions">
-              <span className="mobile-upload-button" onClick={() => navigate("/channel/manage?upload=true")}>Upload</span>
-              <button onClick={() => setChanEditMode(!chanEditMode)} style={{ display: chanEditMode ? "none" : "block" }}>Edit Channel</button>
-              <button
-                onClick={() => {
+              <div className="channel-descrip-block">
+                <p>{channel.channelDescription}</p>
+                <textarea
+                  type="text"
+                  placeholder="Enter a new channel description"
+                  style={{ display: editingChanDesc ? "block" : "none" }}
+                  rows="1"
+                  cols="61"
+                  maxLength="300"
+                  onChange={(e) => setUpdatedChanDesc(e.target.value)}
+                  value={updatedChanDesc}
+                />
+                <img
+                  src="https://img.icons8.com/?size=100&id=71201&format=png&color=FFFFFF"
+                  alt="edit"
+                  className="edit-btn"
+                  style={{ display: chanEditMode ? "block" : "none" }}
+                  onClick={() => setEditingChanDesc(!editingChanDesc)}
+                  loading="lazy"
+                />
+              </div>
+              <div className="manage-channel-actions">
+                <span className="mobile-upload-button" onClick={() => navigate("/channel/manage?upload=true")}>Upload</span>
+                <button onClick={() => setChanEditMode(!chanEditMode)} style={{ display: chanEditMode ? "none" : "block" }}>Edit Channel</button>
+                <button
+                  onClick={() => {
+                    setChanEditMode(!chanEditMode)
+                    setEditingChanName(false)
+                    setEditingChanDesc(false)
+                    setUpdatedChanAvaURL(null)
+                    setBannerPreview(null)
+                  }}
+                  style={{ display: chanEditMode ? "block" : "none" }}>Cancel</button>
+                <button style={{ display: chanEditMode ? "none" : "block" }} onClick={handleDeleteChannel}>Delete Channel</button>
+                <button onClick={() => {
                   setChanEditMode(!chanEditMode)
+                  handleSaveChannel()
                   setEditingChanName(false)
                   setEditingChanDesc(false)
                   setUpdatedChanAvaURL(null)
                   setBannerPreview(null)
-                }}
-                style={{ display: chanEditMode ? "block" : "none" }}>Cancel</button>
-              <button style={{ display: chanEditMode ? "none" : "block" }} onClick={handleDeleteChannel}>Delete Channel</button>
-              <button onClick={() => {
-                setChanEditMode(!chanEditMode)
-                handleSaveChannel()
-                setEditingChanName(false)
-                setEditingChanDesc(false)
-                setUpdatedChanAvaURL(null)
-                setBannerPreview(null)
-              }} style={{ display: chanEditMode ? "block" : "none" }}>Save Channel</button>
+                }} style={{ display: chanEditMode ? "block" : "none" }}>Save Channel</button>
+              </div>
             </div>
           </div>
+          <span>Videos</span>
+          <div className="channel-videos" style={{ display: videos.length === 0 ? "flex" : "grid" }}>
+            {
+              videos.length > 0 ?
+                videos.map(video => {
+                  return <MiniVideoTile video={video} key={video._id} page="channel" isOwner={true} handleVideoEdit={handleVideoEdit} handleVideoDelete={handleVideoDelete} />
+                }) :
+                <div className="no-videos-cta">
+                  <img src="https://www.gstatic.com/youtube/img/channels/core_channel_no_activity_dark.svg" alt="no-videos-cta" loading="lazy" />
+                  <strong>Create content on any device</strong>
+                  <span>Upload and record at home or on the go. <br />Everything you make public will appear here.</span>
+                  <button onClick={() => navigate("/channel/manage?upload=true")}>Upload Video</button>
+                </div>
+            }
+          </div>
         </div>
-        <span>Videos</span>
-        <div className="channel-videos" style={{ display: videos.length === 0 ? "flex" : "grid" }}>
-          {
-            videos.length > 0 ?
-              videos.map(video => {
-                return <MiniVideoTile video={video} key={video._id} page="channel" isOwner={true} handleVideoEdit={handleVideoEdit} handleVideoDelete={handleVideoDelete} />
-              }) :
-              <div className="no-videos-cta">
-                <img src="https://www.gstatic.com/youtube/img/channels/core_channel_no_activity_dark.svg" alt="no-videos-cta" loading="lazy"/>
-                <strong>Create content on any device</strong>
-                <span>Upload and record at home or on the go. <br />Everything you make public will appear here.</span>
-                <button onClick={() => navigate("/channel/manage?upload=true")}>Upload Video</button>
-              </div>
-          }
-        </div>
-      </div>
-    )}
-    {isVideoEditOpen ? <VideoEdit video={selectedVideo} closeIt={handleModalClose} handleAfterSave={handleAfterSave} isNewVideo={isNewVideo} /> : null}
-  </>)
+      )}
+      {isVideoEditOpen ? <VideoEdit video={selectedVideo} closeIt={handleModalClose} handleAfterSave={handleAfterSave} isNewVideo={isNewVideo} /> : null}
+    </>
+  )
 }
 
 export default ManageChannel
