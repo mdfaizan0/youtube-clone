@@ -31,7 +31,7 @@ The project focuses on a smooth, modern UI, robust backend handling, and real-ti
 - [JWT Authentication](https://www.jwt.io/)
 - [Multer + Cloudinary for image storage (multer-cloudinary-storage)](https://github.com/affanshahid/multer-storage-cloudinary)
 - [BcryptJS for password hashing](https://github.com/dcodeIO/bcrypt.js)
-- [Get-video-duration for media duration handling](https://github.com/caffco/get-video-duration)
+- [`get-video-duration` for media duration handling](https://github.com/caffco/get-video-duration)
 - [CORS](https://github.com/expressjs/cors), [Dotenv](https://github.com/motdotla/dotenv)
 
 ## ✨ Features
@@ -167,6 +167,10 @@ This will run the Vite development server on `http://localhost:5173`.
 ### ✅ Final Step: Test the App
 
 Visit http://localhost:5173 in your browser. Ensure both frontend and backend are running simultaneously for full functionality.
+
+#### ⚠️ Known Issues
+
+- **Unable to upload video in live link**: Issue in with the package `get-video-duration`, as it uses `ffprobe` to get the actual video duration, in the process in uses high RAM usage and unfortunately, with Render's free tier only a limited RAM is allotted, which seems to be not enough for `ffprobe`, hence, looking for a solution based in frontend with the `<video>` tag instead.
 
 > This project is built for academic and learning purposes only.
 
